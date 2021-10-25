@@ -20,7 +20,7 @@ if [[ $- == *i* ]]; then
 #   To see fortunes when this runs, install fortune packages and do a 'touch ~/.fortune'
     [ -f ~/.fortune ] && [ -f /usr/games/fortune ] && /usr/games/fortune -s
 fi
-
+#PROMPT_COMMAND='echo -en "\033]0; $("pwd") \a"'
 [ -f /opt/perl5/etc/bashrc ] && export PERLBREW_ROOT=/opt/perl5 && source /opt/perl5/etc/bashrc
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!

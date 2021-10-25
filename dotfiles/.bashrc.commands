@@ -198,6 +198,15 @@ getOrdoIcs () {
 getOrdoTsv () {
     getOrdoIcs ${@:1} | tac | tac | /bin/grep -E "^(DTSTART|SUMMARY)" | perl -pe 's/^DTSTART.+:(.+)\r\n/\t$1\t\tOrdo\t#RITE#\t\t\t/' | perl -pe 's/(\d{4})(\d{2})(\d{2})/$3\/$2\/$1 00:00/' | perl -pe 's/,\\n/,/g' | perl -pe 's/SUMMARY://' | /bin/sed -E "s/#RITE#/${1}/"
 }
+getAnglicanMissalPropers() {
+    lynx -dump "http://www.episcopalnet.org/1928bcp/propers/Missal/${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+MISSAL PROPERS: //" | perl -pe "s/\Wepiscopalnet.*//" > ${1}.txt
+}
+getCoverdalePsalm() {
+    lynx -dump "http://www.episcopalnet.org/1928bcp/Psalter/Ps${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+^Psalms /Psalms /" | perl -pe "s/\Wepiscopalnet.*//" > ${1}.txt
+}
+getMassPropersBOM () {
+    lynx --dump https://www.ewtn.com/catholicism/daily-readings/${1} | sed '0,/First Reading$/d' | sed '/Resources/q' | sed 's/^ \+//' | perl -pe 's/ ([0-9]+)([A-Za-z",;.]+)/\n$1$2/g' | perl -0777 -pe 's/\n(?=[A-Za-z",;.])/ /g' | sed 's/^\s\+//' | sed '/^$/d' | sed '/^[A-Za-z]\+$/d' | perl -pe 's/^([0-9]+)(\S)/$1 $2/'
+}
 eventsFromUniversalisYear ()
 {
     if [ $# -ne 1 ]; then
@@ -211,6 +220,9 @@ eventsFromUniversalisYear ()
 }
 fd () {
     find . -type d -exec ls -d {} \;|sort -f
+}
+ffmpeg-convert-webm-to-mp4 () {
+    ffmpeg -fflags +genpts -i ${1} -r 24 ${2}
 }
 ffmpeg-extract () {
     if [ $# -ne 4 ];
@@ -372,6 +384,13 @@ setPrompt() {
 #            PS1='\[\e[01;04;36m\]\!:$(date +%Y%m%dT%H%M%S):\u@\h:\w/\[\e[00m\]\[\e[01;36m\]\n#\[\e[00m\] '
 		fi
 	fi
+}
+setTitle() {
+  if [[ -z "$ORIG" ]]; then
+    ORIG=$PS1
+  fi
+  TITLE="\[\e]2;$*\a\]"
+  PS1=${ORIG}${TITLE}
 }
 sos() { /usr/bin/nm -D $@ | cut -d' ' -f3 ; }
 tsvCols() {
