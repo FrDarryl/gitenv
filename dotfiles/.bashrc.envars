@@ -10,42 +10,38 @@ export MAIL=/var/spool/mail/frdarryl
 export OFFICE_SUITE="${EDITOR}" && [ -n "${DISPLAY}" ] && export OFFICE_SUITE=loffice
 export PAGER=less
 export PDF_READER_APP="okular"
-export PRINTER=HP_LaserJet_1100
-export SPREADSHEET_APP="localc"
+#export PRINTER=HP_LaserJet_1100
+#export SPREADSHEET_APP="localc"
 export TERM=xterm-256color
 export TERMINAL_EMULATOR=tmux && [ -n "${DISPLAY}" ] && export TERMINAL_EMULATOR=yakuake
 export VISUAL=vim
-export WEB_BROWSER=w3m && [ -n "${DISPLAY}" ] && export WEB_BROWSER=firefox
-export WORD_PROCESSOR_APP="lowriter"
+#export WEB_BROWSER=w3m && [ -n "${DISPLAY}" ] && export WEB_BROWSER=firefox
+#export WORD_PROCESSOR_APP="lowriter"
 
 [ -r ${HOME}/.dircolors ] && export DIR_COLORS=${HOME}/.dircolors || export DIR_COLORS=
 
-
-export EC2_HOME=~/.ec2
+[[ -z "${EC2_HOME}" ]] && [[ -d "${HOME}/.ec2" ]] && export EC2_HOME="${HOME}/.ec2"
 
 # Directories
 
-export XDG_CACHE_HOME="${HOME}/.cache"
-export XDG_DATA_HOME="${HOME}/dropbox/data"
-export XDG_CONFIG_HOME="${HOME}/.config"
-
-DROPBOX_HOME="${HOME}/Dropbox" && [ -d "${DROPBOX_HOME}" ] && export DROPBOX_HOME
-ECLIPSE_HOME="${HOME}/eclipse/eclipse_luna" && [ -d "${ECLIPSE_HOME}" ] && export ECLIPSE_HOME
-GOROOT="/usr/local/go" && [ -d "${GOROOT}" ] && export GOROOT
-NVM_HOME="${HOME}/.nvm" && [ -d ${NVM_HOME} ] && export NVM_HOME
-RVM_HOME="${HOME}/.rvm" && [ -d ${RVM_HOME} ] && export RVM_HOME
+#export XDG_CACHE_HOME="${HOME}/.cache"
+#export XDG_DATA_HOME="${HOME}/dropbox/data"
+#export XDG_CONFIG_HOME="${HOME}/.config"
 
 export MYPATH="."
 
-[ -d "${HOME}/Apps" ]        && MYPATH="${MYPATH}:${HOME}/Apps"
-[ -d "${HOME}/bin" ]         && MYPATH="${MYPATH}:${HOME}/bin"
-[ -d "${DROPBOX_HOME}/bin" ] && MYPATH="${MYPATH}:${DROPBOX_HOME}/bin"
-[ -d "${ECLIPSE_HOME}" ]     && MYPATH="${MYPATH}:${ECLIPSE_HOME}"
-[ -d "${GOROOT}/bin" ]       && MYPATH="${MYPATH}:${GOROOT}/bin"
-[ -d "${JAVA_HOME}/bin" ]    && MYPATH="${MYPATH}:${JAVA_HOME}/bin"
-[ -d "${NVM_HOME}" ]         && MYPATH="${MYPATH}:${NVM_HOME}" # Add NVM to PATH for scripting
-[ -d "${RVM_HOME}/bin" ]     && MYPATH="${MYPATH}:${RVM_HOME}/bin" # Add RVM to PATH for scripting
-[ -d "${HOME}/.rakudobrew/bin" ] && MYPATH="${MYPATH}:${HOME}/.rakudobrew/bin"
+[[ -d "${HOME}/bin" ]]        && MYPATH="${MYPATH}:${HOME}/bin"
+[[ -d "${HOME}/.local/bin" ]] && MYPATH="${MYPATH}:${HOME}/.local/bin"
+
+[[ -z "${DROPBOX_HOME}" ]] && [[ -d "${HOME}/Dropbox" ]]              && export DROPBOX_HOME="${HOME}/Dropbox"              && MYPATH="${MYPATH}:${DROPBOX_HOME}/bin"
+[[ -z "${ECLIPSE_HOME}" ]] && [[ -d "${HOME}/eclipse/eclipse_luna" ]] && export ECLIPSE_HOME="${HOME}/eclipse/eclipse_luna" && MYPATH="${MYPATH}:${ECLIPSE_HOME}/bin"
+[[ -z "${GOPATH}" ]]       && [[ -d "${HOME}/go" ]]                   && export GOPATH="${HOME}/go"                         && MYPATH="${MYPATH}:${GOPATH_HOME}/bin"
+[[ -z "${NVM_HOME}" ]]     && [[ -d "${HOME}/.nvm" ]]                 && export NVM_HOME="${HOME}/.nvm"                     && MYPATH="${MYPATH}:${NVM_HOME}/bin" && [[ -s "${NVM_HOME}/nvm" ]] && source "${NVM_HOME}/nvm"
+[[ -z "${PYENV_ROOT}" ]]   && [[ -d "${HOME}/.pyenv" ]]               && export PYENV_ROOT="${HOME}/.pyenv"                 && MYPATH="${MYPATH}:${PYENV_ROOT}/bin"
+[[ -z "${RAKUDO_ROOT}" ]]  && [[ -d "${HOME}/.rakudobrew" ]]          && export RAKUDO_ROOT="${HOME}/.rakudobrew"           && MYPATH="${MYPATH}:${RAKUDO_ROOT}/bin"
+[[ -z "${RVM_HOME}" ]]     && [[ -d "${HOME}/.rvm" ]]                 && export RVM_HOME="${HOME}/.rvm"                     && MYPATH="${MYPATH}:${RVM_HOME}/bin && [[ -s "${RVM_HOME}/scripts/rvm" ]] && source "${RVM_HOME}/scripts/rvm" # Load RVM into a shell session *as a function*"
+
+[[ -z "${GOROOT}" ]] && [[ -d "/usr/local/go" ]] && export GOROOT="/usr/local/go" && MYPATH="${MYPATH}:${GOROOT}/bin"
 
 #cygwin envars
 WINC_HOME="/cygdrive/c"
@@ -53,7 +49,7 @@ if [ -d "${WINC_HOME}" ];
 then
     export WINC_HOME
     [ -d "${WINC_HOME}/apps" ]                                    && MYPATH="${MYPATH}:${WINC_HOME}/apps"
-    [ -d "${WINC_HOME}/Go" ]                                      && export GOROOT="${WINC_HOME}/Go" && MYPATH="${GOROOT}/bin"
+    [ -d "${WINC_HOME}/go" ]                                      && export GOROOT="${WINC_HOME}/Go" && MYPATH="${GOROOT}/bin"
     [ -d "${WINC_HOME}/ProgramData/KDE/bin" ]                     && MYPATH="${MYPATH}:${WINC_HOME}/ProgramData/KDE/bin"
     [ -d "${WINC_HOME}/Program Files/Adobe/Reader 10.0/Reader" ]  && MYPATH="${MYPATH}:${WINC_HOME}/Program Files/Adobe/Reader 10.0/Reader"
     [ -d "${WINC_HOME}/Program Files/LibreOffice 4/program" ]     && MYPATH="${MYPATH}:${WINC_HOME}/Program Files/LibreOffice 4/program"
@@ -65,9 +61,8 @@ fi
 [ -d /opt/project-neon/bin ] && MYPATH=${MYPATH:-.}:/opt/project-neon/bin
 
 export SYSPATH="${SYSPATH:-$PATH}"
+export MYPATH="${MYPATH}"
 export PATH="${MYPATH}:${SYSPATH}"
 
 export PARINIT="rTbgqR B=.,?_A_a Q=_s>| w72"
-
-[ -s "${NVM_HOME}/nvm" ] && source "${NVM_HOME}/nvm"
-[ -s "${RVM_HOME}/scripts/rvm" ] && source "${RVM_HOME}/scripts/rvm" # Load RVM into a shell session *as a function*
+[[ ! -z "${PYENV_ROOT}" ]] && eval "$(pyenv virtualenv-init -)"

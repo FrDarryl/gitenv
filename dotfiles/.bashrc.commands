@@ -95,7 +95,58 @@ dlurl() {
     #lynx -dump ${1} | sed -e "s/^   //" | sed -n "/^January$/,$p" | sed -n "/^$/q;p"
     lynx -dump ${1} | sed -e "s/^   //" | sed -n "${2},\$p" | sed -n "${3}q;p"
 }
-eventsFromUnical() {
+findgrep() {
+    find "${0}" -type f -print0 | xargs -0 grep -i "${2}";
+}
+findll() {
+    find "${0}" -type f -print0 | xargs -0 ls -l;
+}
+fr90 ()
+{
+    ffmpeg -i $1 -vf "transpose=0" "r90.${1}"
+}
+fd () {
+    find . -type d -exec ls -d {} \;|sort -f
+}
+ffmpeg-convert-webm-to-mp4 () {
+    ffmpeg -fflags +genpts -i ${1} -r 24 ${2}
+}
+ffmpeg-extract () {
+    if [ $# -ne 4 ];
+    then
+        echo "Usage: $0 InputPath StartPosition Duration OutputPath"
+    else
+        ffmpeg -ss "${2}" -i $1 -t $3 -vcodec copy -acodec copy "${4}"
+    fi
+}
+ffmpeg-merge () {
+    if [ $# -lt 3 ];
+    then
+        echo "Usage: $0 OutputPath file1 ... filen"
+    else
+        of="${1}"
+        echo "Output: $of"
+        shift
+        ffmpeg -f concat -safe 0 -i <(for f in "${@}"; do echo "file '$PWD/$f'"; done) -c copy "$of"
+    fi
+}
+finddup() {
+    cksum ./* | awk ' {
+                          if ( $2 in arr ) {
+                              print "duplicates ", $3, arr[$2], "duplicate filesize = ", $2
+                          } else {
+                              arr[$2]=$3
+                          }
+                      }'
+}
+gc() { grep -i "$@" ~/Dropbox/data/pim/*_contacts.tsv ; }
+getAnglicanMissalPropers() {
+    [[ $(curl -silent --head "http://www.episcopalnet.org/1928bcp/propers/Missal/${1}.html" | head -1) =~ "200" ]] && lynx -dump "http://www.episcopalnet.org/1928bcp/propers/Missal/${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+MISSAL PROPERS: //" | perl -pe "s/\Wepiscopalnet.*//" > ${1}.txt
+}
+getCoverdalePsalm() {
+    lynx -dump "http://www.episcopalnet.org/1928bcp/Psalter/Ps${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+^Psalms /Psalms /" | perl -pe "s/\Wepiscopalnet.*//" > ${1}.txt
+}
+getEventsFromUnical() {
     curl http://www.universalis.com/europe.england.${1}/${2}0101/vcalendar.ics | tac | tac \
         | grep "^(UID|SUMMARY)" \
         | perl -pe 's/^UID:.+\.(.).+\/(\d+).*\r\n/$2\t$1\t/' \
@@ -148,7 +199,7 @@ eventsFromUnical() {
         | perl -pe 's/\(commemoration of (.+?)\)/$1/g' \
         | perl -pe 's/\|or /|/g'
 }
-eventsFromUniversalis () {
+getEventsFromUniversalis () {
     if [ $# -ne 3 ];
     then
         echo "Usage: $0 Calendar(e.g., ordinariate|portsmouth) Year(YYYY-MM-DD) EventsInWorkSheetFirstFieldValue(pc1|pc2|sc1|sc2)";
@@ -156,15 +207,16 @@ eventsFromUniversalis () {
         curl http://www.universalis.com/europe.england.${1}/${2}0101/vcalendar.ics | tac | tac | /bin/grep -E "^(UID|SUMMARY)" | perl -pe 's/^UID:.+\...+\/(\d+).*\r\n/$1\t/' | perl -pe 's/^(\d{4})(\d{2})(\d{2})/$1-$2-$3/' | perl -pe 's/,\\n/,/g' | perl -pe 's/SUMMARY://' | /bin/sed -E "s/^/${3}\t/";
     fi
 }
-findgrep() {
-    find "${0}" -type f -print0 | xargs -0 grep -i "${2}";
-}
-findll() {
-    find "${0}" -type f -print0 | xargs -0 ls -l;
-}
-fr90 ()
+getEventsFromUniversalisYear ()
 {
-    ffmpeg -i $1 -vf "transpose=0" "r90.${1}"
+    if [ $# -ne 1 ]; then
+        echo "Usage: $0 YYYY";
+    else
+        eventsFromUniversalis portsmouth "${1}" "pc1";
+        eventsFromUniversalis portsmouth "${1}" "pc2";
+        eventsFromUniversalis ordinariate "${1}" "sc1";
+        eventsFromUniversalis ordinariate "${1}" "sc2";
+    fi
 }
 getOrdoIcs () {
     usage="Usage: $0 AU|EF|OF [YYYY]"
@@ -198,63 +250,11 @@ getOrdoIcs () {
 getOrdoTsv () {
     getOrdoIcs ${@:1} | tac | tac | /bin/grep -E "^(DTSTART|SUMMARY)" | perl -pe 's/^DTSTART.+:(.+)\r\n/\t$1\t\tOrdo\t#RITE#\t\t\t/' | perl -pe 's/(\d{4})(\d{2})(\d{2})/$3\/$2\/$1 00:00/' | perl -pe 's/,\\n/,/g' | perl -pe 's/SUMMARY://' | /bin/sed -E "s/#RITE#/${1}/"
 }
-getAnglicanMissalPropers() {
-    lynx -dump "http://www.episcopalnet.org/1928bcp/propers/Missal/${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+MISSAL PROPERS: //" | perl -pe "s/\Wepiscopalnet.*//" > ${1}.txt
-}
-getCoverdalePsalm() {
-    lynx -dump "http://www.episcopalnet.org/1928bcp/Psalter/Ps${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+^Psalms /Psalms /" | perl -pe "s/\Wepiscopalnet.*//" > ${1}.txt
-}
-getMassPropersBOM () {
-    lynx --dump https://www.ewtn.com/catholicism/daily-readings/${1} | sed '0,/First Reading$/d' | sed '/Resources/q' | sed 's/^ \+//' | perl -pe 's/ ([0-9]+)([A-Za-z",;.]+)/\n$1$2/g' | perl -0777 -pe 's/\n(?=[A-Za-z",;.])/ /g' | sed 's/^\s\+//' | sed '/^$/d' | sed '/^[A-Za-z]\+$/d' | perl -pe 's/^([0-9]+)(\S)/$1 $2/'
-}
-eventsFromUniversalisYear ()
-{
-    if [ $# -ne 1 ]; then
-        echo "Usage: $0 YYYY";
-    else
-        eventsFromUniversalis portsmouth "${1}" "pc1";
-        eventsFromUniversalis portsmouth "${1}" "pc2";
-        eventsFromUniversalis ordinariate "${1}" "sc1";
-        eventsFromUniversalis ordinariate "${1}" "sc2";
-    fi
-}
-fd () {
-    find . -type d -exec ls -d {} \;|sort -f
-}
-ffmpeg-convert-webm-to-mp4 () {
-    ffmpeg -fflags +genpts -i ${1} -r 24 ${2}
-}
-ffmpeg-extract () {
-    if [ $# -ne 4 ];
-    then
-        echo "Usage: $0 InputPath StartPosition Duration OutputPath"
-    else
-        ffmpeg -ss "${2}" -i $1 -t $3 -vcodec copy -acodec copy "${4}"
-    fi
-}
-ffmpeg-merge () {
-    if [ $# -lt 3 ];
-    then
-        echo "Usage: $0 OutputPath file1 ... filen"
-    else
-        of="${1}"
-        echo "Output: $of"
-        shift
-        ffmpeg -f concat -safe 0 -i <(for f in "${@}"; do echo "file '$PWD/$f'"; done) -c copy "$of"
-    fi
-}
-finddup() {
-    cksum ./* | awk ' {
-                          if ( $2 in arr ) {
-                              print "duplicates ", $3, arr[$2], "duplicate filesize = ", $2
-                          } else {
-                              arr[$2]=$3
-                          }
-                      }'
-}
-gc() { grep -i "$@" ~/Dropbox/data/pim/*_contacts.tsv ; }
-getRSVCE() {
-    get_biblegateway_text.pl -u -t RSVCE $(get_universalis_refs.pl -l m -d $1 2> /dev/null)
+getRSVCEMassPropers () {
+#   lynx --dump https://www.ewtn.com/catholicism/daily-readings/${1} | sed '0,/First Reading$/d' | sed '/Resources/q' | sed 's/^ \+//' | perl -pe 's/ ([0-9]+)([A-Za-z",;.]+)/\n$1$2/g' | perl -0777 -pe 's/\n(?=[A-Za-z",;.])/ /g' | sed 's/^\s\+//' | sed '/^$/d' | sed '/^[A-Za-z]\+$/d' | perl -pe 's/^([0-9]+)(\S)/$1 $2/'
+#   get_biblegateway_text.pl -u -t RSVCE $(get_universalis_refs.pl -l m -d $1 2> /dev/null)
+    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep "©" | sed -e 's/^ \+//' -e 's/.\+reading //' -e 's/^Gospel //' -e 's/ \[[0-9]\+\]©//' -e '/opyright/d'
+    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep '^ +Psalm ' | sed -e 's/^ \+//'
 }
 gf() {
     find $1 | xargs grep -si $2 | grep -v cache
@@ -489,6 +489,8 @@ alias myip="w3m -dump http://echoip.com/"
 alias nc="nesh -c"
 alias npmin="sudo npm -g install"
 alias ns="netstat -tulpn"
+alias pip="python3 -m pip"
+alias pip3="python3 -m pip"
 alias pkup="pkcon refresh && pkcon update"
 alias plasma_restart="kbuildsycoca4 && kquitapp plasma-desktop && kstart plasma-desktop"
 alias pp="tr -cd '\12\40-\176' | a2ps --columns=1 --font='12' --portrait"
