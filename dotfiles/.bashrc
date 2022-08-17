@@ -3,6 +3,7 @@
 set -o noclobber
 set -o vi
 #set -x
+setxkbmap -option caps:none
 
 fileArray=(~/.bashrc.envars ~/.bashrc.commands)
 for file in ${fileArray[@]}

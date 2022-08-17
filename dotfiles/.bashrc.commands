@@ -130,6 +130,10 @@ ffmpeg-merge () {
         ffmpeg -f concat -safe 0 -i <(for f in "${@}"; do echo "file '$PWD/$f'"; done) -c copy "$of"
     fi
 }
+ffmpeg-rotate () {
+    #https://superuser.com/questions/578321/how-to-rotate-a-video-180-with-ffmpeg
+    ffmpeg -i ${2} -vf "rotate=${1}*(PI/180),format=yuv420p" -metadata:s:v rotate=0 -codec:v libx264 -codec:a copy ${3}
+}
 finddup() {
     cksum ./* | awk ' {
                           if ( $2 in arr ) {
@@ -302,7 +306,12 @@ gitenv_update() {
     cd ~/gitenv
     git submodule update --remote --merge
 }
-gp() { ps -efa | grep -i "$@" | grep -v grep | perl -pe's/\s{2,}/ /g' | cut -d ' ' -f 2 ; }
+gp() {
+    ps -efa | grep -i "$@" | grep -v grep | perl -pe's/\s{2,}/ /g' | cut -d ' ' -f 2 ;
+}
+gp1() {
+    ps -efa | grep -i "$@" | grep -v grep | perl -pe's/\s{2,}/ /g' | cut -d ' ' -f 2 | head -1 ;
+}
 kn() {
     for pid in `np`;
     do
@@ -489,7 +498,8 @@ alias myip="w3m -dump http://echoip.com/"
 alias nc="nesh -c"
 alias npmin="sudo npm -g install"
 alias ns="netstat -tulpn"
-alias pip="python3 -m pip"
+alias pd="cd ${OLDPWD}"
+alias pip="python -m pip"
 alias pip3="python3 -m pip"
 alias pkup="pkcon refresh && pkcon update"
 alias plasma_restart="kbuildsycoca4 && kquitapp plasma-desktop && kstart plasma-desktop"
