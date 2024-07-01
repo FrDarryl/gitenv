@@ -454,7 +454,7 @@ alias flnd="find ~ -type l -exec ls -o {} \; | grep dropbox >| ${DROPBOX_HOME}/s
 alias fm=ffmpeg-merge
 alias fp="firefox-trunk --private&"
 alias gemup="gem update && gem cleanup"
-#alias gh="history | grep -i"
+alias gh="history | grep -i"
 alias girb="rvm use 2.0.0 && google-api oauth-2-login --client-id='427178904171.apps.googleusercontent.com' --client-secret='mUlrrm1VBFs3mE2oWgVyAbF2' --scope='https://www.googleapis.com/auth/plus.me' && google-api irb"
 alias grep="/bin/grep -E --color=auto"
 alias hi=history
