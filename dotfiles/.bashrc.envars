@@ -39,6 +39,7 @@ export MYPATH="."
 [[ -d "${HOME}/.nvm" ]]                 && export NVM_HOME="${HOME}/.nvm"                     && MYPATH="${MYPATH}:${NVM_HOME}/bin" && [[ -s "${NVM_HOME}/nvm" ]] && source "${NVM_HOME}/nvm"
 [[ -d "${HOME}/.pyenv" ]]               && export PYENV_ROOT="${HOME}/.pyenv"                 && MYPATH="${MYPATH}:${PYENV_ROOT}/bin"
 [[ -d "${HOME}/.rakudobrew" ]]          && export RAKUDO_ROOT="${HOME}/.rakudobrew"           && MYPATH="${MYPATH}:${RAKUDO_ROOT}/bin"
+[[ -d "${HOME}/.cargo" ]]                && export RUST_HOME="${HOME}/.cargo"                  && MYPATH="${MYPATH}:${RUST_HOME}/bin"
 [[ -d "${HOME}/.rvm" ]]                 && export RVM_HOME="${HOME}/.rvm"                     && MYPATH="${MYPATH}:${RVM_HOME}/bin && [[ -s "${RVM_HOME}/scripts/rvm" ]] && source "${RVM_HOME}/scripts/rvm" # Load RVM into a shell session *as a function*"
 
 [[ -z "${GOROOT}" ]] && [[ -d "/usr/local/go" ]] && export GOROOT="/usr/local/go" && MYPATH="${MYPATH}:${GOROOT}/bin"
