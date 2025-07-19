@@ -6,6 +6,7 @@
 #[ -e "${HOME}/Program_Files/Adobe/Reader 11.0/Reader/AcroRd32.exe" ] && alias acroread="${HOME}/Program_Files/Adobe/Reader\ 11.0/Reader/AcroRd32.exe"
 #
 # functions
+af() { echo "`date`:${@}" >> ~/GoodFortunes.txt ; }
 aptcs()
 {
     echo -e "\n\n\e[00;31mRunning apt-cache search\e[00m\n\n" &&
@@ -61,7 +62,7 @@ aptup()
     echo -e "\n\n\e[00;31mRunning apt -y clean\e[00m\n\n" &&
     sudo apt clean;
 }
-au() { echo "${@}" >> urls ; }
+au() { echo "`date`:${@}" >> urls ; }
 cdi()
 {
     if [ $# -ne 1 ];
