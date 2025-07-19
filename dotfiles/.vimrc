@@ -2,6 +2,12 @@
 " Remove ALL autocommands to allow redefines at initial load and runtime source
 autocmd!
 
+" HINTS
+"
+" Remove multiple blank lines (reduce to one): :g/^\_$\n\_^$/d
+"
+" Yank into command line: <Ctrl>R "
+
 set nocp
 runtime bundle/vim-pathogen/autoload/pathogen.vim
 call pathogen#infect()
@@ -24,6 +30,7 @@ if has("autocmd")
     aug ENG
 endif
 
+set history=1000
 set autoindent
 set cursorline cursorcolumn
 set expandtab
@@ -204,6 +211,23 @@ set shell=bash\ --login
 
 source ~/.vim/osc52.vim
 vmap <C-c> y:call SendViaOSC52(getreg('"'))<cr>
+
+autocmd Filetype json setlocal ts=2 sw=2 expandtab
+
+" "Mode Settings
+
+let &t_SI.="\e[5 q" "SI = INSERT mode
+let &t_SR.="\e[4 q" "SR = REPLACE mode
+let &t_EI.="\e[1 q" "EI = NORMAL mode (ELSE)
+
+"Cursor settings:
+
+"  1 -> blinking block
+"  2 -> solid block
+"  3 -> blinking underscore
+"  4 -> solid underscore
+"  5 -> blinking vertical bar
+"  6 -> solid vertical bar
 
 " Must be at the end
 syntax on
