@@ -7,7 +7,10 @@ autocmd!
 " Remove multiple blank lines (reduce to one): :g/^\_$\n\_^$/d
 "
 " Yank into command line: <Ctrl>R "
-
+"
+" Title Case replace: !perl -lpe 's/([^\s\w]*)(\S+)/$1\u\L$2/g'
+"
+"
 set nocp
 runtime bundle/vim-pathogen/autoload/pathogen.vim
 call pathogen#infect()
