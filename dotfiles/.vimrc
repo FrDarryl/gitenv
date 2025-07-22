@@ -4,13 +4,18 @@ autocmd!
 
 " HINTS
 "
-" Remove multiple blank lines (reduce to one): :g/^\_$\n\_^$/d
+" Set and use a Macro using Macro 'a': qa @a
 "
-" Yank into command line: <Ctrl>R "
+" Set and go to a Mark using Mark 'a': ma 'a
 "
-" Title Case replace: !perl -lpe 's/([^\s\w]*)(\S+)/$1\u\L$2/g'
+" Yank selected text into and Paste from Register 'a': "ay "ap (the Default Register is ironically '"')
+" Yank into command line using Register 'a': <Ctrl>Ra (For Default Register: <Ctrl>R")
 "
+" Remove multiple blank lines, i.e., reduce to one blank line: :g/^\_$\n\_^$/d
 "
+" Perl substitution globally (entire line) without perldo in Command Line: !perl -lpe 's///g'
+" As above, title case replace: !perl -lpe 's/([^\s\w]*)(\S+)/$1\u\L$2/g'
+
 set nocp
 runtime bundle/vim-pathogen/autoload/pathogen.vim
 call pathogen#infect()
