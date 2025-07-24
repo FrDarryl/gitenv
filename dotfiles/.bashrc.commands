@@ -464,6 +464,7 @@ alias e="vim.sh"
 alias ecss="${DROPBOX_HOME}/apps/java/juststyle.jar"
 alias et="e /tmp/temp"
 alias fa="find . -printf '%CY-%Cm-%Cd_%CH:%CM %p %l\n'"
+alias fb="pcmanfm-qt"
 alias fe=ffmpeg-extract
 alias ff="firefox-trunk&"
 alias fln="find $PWD -type l -exec ls -o {} \;"
