@@ -8,13 +8,17 @@ autocmd!
 "
 " Set and go to a Mark using Mark 'a': ma 'a
 "
-" Yank selected text into and Paste from Register 'a': "ay "ap (the Default Register is ironically '"')
+" Yank selected text into and paste from Register 'a': "ay "ap (the Default Register is ironically '"')
 " Yank into command line using Register 'a': <Ctrl>Ra (For Default Register: <Ctrl>R")
 "
 " Remove multiple blank lines, i.e., reduce to one blank line: :g/^\_$\n\_^$/d
 "
 " Perl substitution globally (entire line) without perldo in Command Line: !perl -lpe 's///g'
 " As above, title case replace: !perl -lpe 's/([^\s\w]*)(\S+)/$1\u\L$2/g'
+"
+" Command History: In Command Mode, <Ctrl>F to display a buffer for selection
+"
+" Search for non-ASCII characters: /[^\x00-\x7F]
 
 set nocp
 runtime bundle/vim-pathogen/autoload/pathogen.vim
@@ -38,7 +42,6 @@ if has("autocmd")
     aug ENG
 endif
 
-set history=1000
 set autoindent
 set cursorline cursorcolumn
 set expandtab
@@ -53,6 +56,8 @@ set smartindent
 set softtabstop=4
 set tabstop=4
 set textwidth=0  " In case someone irritatingly put autosplit in a sourced file
+"
+" History stuff
 "http://ww2.cs.fsu.edu/~stanovic/vim.html
 " Tell vim to remember certain things when we exit
 "  '10  :  marks will be remembered for up to 10 previously edited files
@@ -61,7 +66,8 @@ set textwidth=0  " In case someone irritatingly put autosplit in a sourced file
 "  %    :  saves and restores the buffer list
 "  n... :  where to save the viminfo files
 set viminfo='10,\"100,:500,%,n~/.viminfo
-
+set viminfo-=:42 | set viminfo+=:1000
+"
 "========================================================= status bar
 set laststatus=2
 set statusline=
