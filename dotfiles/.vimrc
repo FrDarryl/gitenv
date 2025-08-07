@@ -19,6 +19,8 @@ autocmd!
 " Command History: In Command Mode, <Ctrl>F to display a buffer for selection
 "
 " Search for non-ASCII characters: /[^\x00-\x7F]
+"
+" Set DOS file to UNIX :set fileformat=unix
 
 set nocp
 runtime bundle/vim-pathogen/autoload/pathogen.vim
