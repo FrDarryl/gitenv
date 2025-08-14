@@ -23,9 +23,10 @@ autocmd!
 " Set DOS file to UNIX :set fileformat=unix
 
 set nocp
-runtime bundle/vim-pathogen/autoload/pathogen.vim
-call pathogen#infect()
-call pathogen#helptags()
+
+"runtime bundle/vim-pathogen/autoload/pathogen.vim
+"call pathogen#infect()
+"call pathogen#helptags()
 
 if has("eval")    " Enable filetype settings
     filetype on
