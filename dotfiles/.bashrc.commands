@@ -90,17 +90,6 @@ debls()
 {
     for file in /var/lib/apt/lists/*Packages; do echo "${file}" && grep -H ^Package "${file}" ; done | grep "${1}"
 }
-#detox() {
-#    for file_name in "${@}";
-#    do
-#        new_file_name="$(echo "${file_name}" | sed 's/ /_/g' | sed 's/[^0-9a-zA-Z-_.]//g')";
-#        [ "${new_file_name}" != "${file_name}" ] && mv "${file_name}" "${new_file_name}"
-#    done
-#}
-dlurl() {
-    #lynx -dump ${1} | sed -e "s/^   //" | sed -n "/^January$/,$p" | sed -n "/^$/q;p"
-    lynx -dump ${1} | sed -e "s/^   //" | sed -n "${2},\$p" | sed -n "${3}q;p"
-}
 findgrep() {
     find "${0}" -type f -print0 | xargs -0 grep -i "${2}";
 }
@@ -151,135 +140,13 @@ finddup() {
                       }'
 }
 gc() { grep -i "$@" ~/dropbox/data/pim/*_contacts.tsv ; }
-getanglicanmissalpropers() {
+GetAnglicanMissalPropers() {
     [[ $(curl -silent --head "http://www.episcopalnet.org/1928bcp/propers/missal/${1}.html" | head -1) =~ "200" ]] && lynx -dump "http://www.episcopalnet.org/1928bcp/propers/missal/${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+missal propers: //" | perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
 }
-getcoverdalepsalm() {
+GetCoverdalePsalm() {
     lynx -dump "http://www.episcopalnet.org/1928bcp/psalter/ps${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+^psalms /psalms /" | perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
 }
-#geteventsfromunical() {
-#    curl http://www.universalis.com/europe.england.${1}/${2}0101/vcalendar.ics | tac | tac \
-#        | grep "^(UID|SUMMARY)" \
-#        | perl -pe 's/^UID:.+\.(.).+\/(\d+).*\r\n/$2\t$1\t/' \
-#        | perl -pe 's/^(\d{4})(\d{2})(\d{2})/$1-$2-$3/' \
-#        | perl -pe 's/SUMMARY://' \
-#        | perl -pe 's/,\\n /|/g' \
-#        | perl -pe 's/\t(\d+).. Sunday.+?(Advent|Christmastide|Christmas|Epiphany|Lent|Eastertide|Easter|Ordinary Time|Trinity)/\tSunday in $2 $1/' \
-#        | perl -pe 's/\t([A-Z][a-z]+day) of the (\d+)[a-z].+ week of ([A-Z][A-Za-z ]+)/\t$1 of $3 $2/' \
-#        | perl -pe 's/\t([A-Z][a-z]+day) of week (\d+).in ([A-Z][A-Za-z ]+)/\t$1 of $3 $2/' \
-#        | perl -pe 's/\t([A-Z][a-z]+day?) after the (\d+).+? after ([A-Z][A-Za-z ]+)/\t$1 of $3 $2/' \
-#        | perl -pe 's/\t([A-Z][a-z]+day?) after the ([A-Za-z-]+?) Sunday after ([A-Z][A-Za-z ]+)/\t$1 of $3 $2/' \
-#        | perl -pe 's/\t([A-Za-z-]+?) Sunday after (Epiphany|Trinity)/\t$2 $1/' \
-#        | perl -pe 's/(Epiphany|Trinity) First/$1 I/' \
-#        | perl -pe 's/(Epiphany|Trinity) Second/$1 II/' \
-#        | perl -pe 's/(Epiphany|Trinity) Third/$1 III/' \
-#        | perl -pe 's/(Epiphany|Trinity) Fourth/$1 IV/' \
-#        | perl -pe 's/(Epiphany|Trinity) Fifth/$1 V/' \
-#        | perl -pe 's/(Epiphany|Trinity) Sixth/$1 VI/' \
-#        | perl -pe 's/(Epiphany|Trinity) Seventh/$1 VII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Eighth/$1 VIII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Ninth/$1 IX/' \
-#        | perl -pe 's/(Epiphany|Trinity) Tenth/$1 X/' \
-#        | perl -pe 's/(Epiphany|Trinity) Eleventh/$1 XI/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twelfth/$1 XII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Thirteenth/$1 XIII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Fourteenth/$1 XIV/' \
-#        | perl -pe 's/(Epiphany|Trinity) Fifteenth/$1 XV/' \
-#        | perl -pe 's/(Epiphany|Trinity) Sixtenth/$1 XVI/' \
-#        | perl -pe 's/(Epiphany|Trinity) Seventeenth/$1 XVII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Eighteenth/$1 XVIII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Nineteenth/$1 XIX/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twentieth/$1 XX/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twenty-First/$1 XXI/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twenty-Second/$1 XXII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twenty-Third/$1 XXIII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twenty-Fourth/$1 XXIV/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twenty-Fifth/$1 XXV/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twenty-Sixth/$1 XXVI/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twenty-Seventh/$1 XXVII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twenty-Eighth/$1 XXVIII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Twenty-Ninth/$1 XXIX/' \
-#        | perl -pe 's/(Epiphany|Trinity) Thirtieth/$1 XXX/' \
-#        | perl -pe 's/(Epiphany|Trinity) Thirty-First/$1 XXXI/' \
-#        | perl -pe 's/(Epiphany|Trinity) Thirty-Second/$1 XXXII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Thirty-Third/$1 XXXIII/' \
-#        | perl -pe 's/(Epiphany|Trinity) Thirty-Fourth/$1 XXXIV/' \
-#        | perl -pe 's/Blessed Virgin Mary/BVM/g' \
-#        | perl -pe 's/Saint /St /g' \
-#        | perl -pe 's/Saints /Ss /g' \
-#        | perl -pe 's/\(commemoration of (.+?)\)/$1/g' \
-#        | perl -pe 's/\|or /|/g'
-#}
-getAnnualOrdoFromUniversalis () {
-    usage="Usage: $0 Year(YYYY) Rite(NOE|VOE)"
-    if [ $# -ne 2 ];
-    then
-        echo "${usage}"
-        exit 1
-    fi
-    if [ $1 == "NOE" ]; then
-        calendar="portsmouth"
-    elif [ $1 == "VOE" ]; then
-        calendar="ordinariate"
-    else
-        echo "${usage}"
-        exit 1
-    fi
-    rite="${1}"
-    year="${2}"
-    outfile="${year}_${calendar}-ordo.txt"
-    curl http://www.universalis.com/europe.england.${calendar}/${year}0101/vcalendar.ics | tac | tac | \
-        /bin/grep -E "^SUMMARY" | \
-        perl -pe 's/SUMMARY://' | \
-        perl -pe 's/,\\n/|/g' | \
-        perl -pe 's/ or //g' | \
-        /bin/sed -E "s/^/${rite}\t/" >| $outfile
-    echo "Wrote ${outfile}"
-}
-#getEventsFromUniversalisYear ()
-#{
-#    if [ $# -ne 1 ]; then
-#        echo "Usage: $0 YYYY";
-#    else
-#        eventsFromUniversalis portsmouth "${1}" "pc1";
-#        eventsFromUniversalis portsmouth "${1}" "pc2";
-#        eventsFromUniversalis ordinariate "${1}" "sc1";
-#        eventsFromUniversalis ordinariate "${1}" "sc2";
-#    fi
-#}
-#getOrdoIcs () {
-#    usage="Usage: $0 AU|EF|OF [YYYY]"
-#    if [ $# -lt 1 ] || [ $# -gt 2 ];
-#    then
-#        echo ${usage}
-#        return 1
-#    elif [ $# -eq 1 ]
-#    then
-#        year=`date +'%Y'`
-#    else
-#        year=${2}
-#    fi
-#    form=$1
-#    if [ ${form} == 'AU' ];
-#    then
-#        url="http://www.universalis.com/europe.england.ordinariate/${year}0101/vcalendar.ics"
-#    elif [ ${form} == 'EF' ];
-#    then
-#        url="curl https://www.missalemeum.com/en/api/v3/icalendar"
-#    elif [ ${form} == 'OF' ];
-#    then
-#        url="http://www.universalis.com/europe.england.portsmouth/${year}0101/vcalendar.ics"
-#    else
-#        echo ${usage}
-#        return 1
-#    fi
-#    nodejs ics2tsv.js ${url} ${form}
-##    curl ${url} # > ${year}_${form}.ics
-#}
-#getOrdoTsv () {
-#    getOrdoIcs ${@:1} | tac | tac | /bin/grep -E "^(DTSTART|SUMMARY)" | perl -pe 's/^DTSTART.+:(.+)\r\n/\t$1\t\tOrdo\t#RITE#\t\t\t/' | perl -pe 's/(\d{4})(\d{2})(\d{2})/$3\/$2\/$1 00:00/' | perl -pe 's/,\\n/,/g' | perl -pe 's/SUMMARY://' | /bin/sed -E "s/#RITE#/${1}/"
-#}
-getRSVCEMassPropers () {
+GetRSVCEMassPropers () {
 #   lynx --dump https://www.ewtn.com/catholicism/daily-readings/${1} | sed '0,/First Reading$/d' | sed '/Resources/q' | sed 's/^ \+//' | perl -pe 's/ ([0-9]+)([A-Za-z",;.]+)/\n$1$2/g' | perl -0777 -pe 's/\n(?=[A-Za-z",;.])/ /g' | sed 's/^\s\+//' | sed '/^$/d' | sed '/^[A-Za-z]\+$/d' | perl -pe 's/^([0-9]+)(\S)/$1 $2/'
 #   get_biblegateway_text.pl -u -t RSVCE $(get_universalis_refs.pl -l m -d $1 2> /dev/null)
     lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep "©" | sed -e 's/^ \+//' -e 's/.\+reading //' -e 's/^Gospel //' -e 's/ \[[0-9]\+\]©//' -e '/opyright/d'
@@ -290,50 +157,6 @@ gf() {
 }
 gfl() {
     find $1 | xargs grep -sil $2 | grep -v cache
-}
-#git_pull() {
-#    if [ -z $1 ];
-#    then
-#        echo "Usage: ${FUNCNAME[0]} RepoName"
-#    else
-#        cd ~/${1}
-#        git pull origin master
-#        git submodule init
-#        git submodule update
-#    fi
-#}
-#git_push() {
-#    if [ -z $1 ];
-#    then
-#        echo "Usage: ${FUNCNAME[0]} RepoName"
-#    else
-#        cd ~/${1}
-#        git add .
-#        git commit -m "`date`"
-#        git push origin master
-#    fi
-#}
-gitenv_add_vim_package() {
-    if [ -z $2 ];
-    then
-        echo "Usage: ${FUNCNAME[0]} RepoUserID RepoName"
-    else
-        echo "Adding pathogen package https://github.com/${1}/${2}.git as .vim/bundle/${2}"
-        cd ${GITENV_HOME}
-        git submodule add https://github.com/${1}/${2}.git dotfiles/.vim/bundle/${2}
-        git add .
-        git commit -m "`date`"
-        git push origin master
-    fi
-}
-gitenv_update() {
-    echo "Updating all git modules in ${GITENV_HOME}"
-    cd ${GITENV_HOME}
-    git submodule update --remote --merge
-}
-gitup() {
-    gh auth login
-    gh repo sync --force
 }
 gp ()
 {

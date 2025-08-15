@@ -24,6 +24,22 @@ autocmd!
 
 set nocp
 
+"https://github.com/junegunn/vim-plug
+"https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+"Download a copy of the file plug.vim above into ~/.vim/autoload directory (versus doing a clone of the repo).
+"Restart vim and do command :PlugInstall to initialise all the Plugs below.
+"That enables the Plugger functionality.
+
+call plug#begin()
+
+" List your plugins here
+Plug 'preservim/nerdtree'
+Plug 'jlanzarotta/bufexplorer'
+Plug 'vim-airline/vim-airline'
+
+call plug#end()
+
+"Replaced with Plug above
 "runtime bundle/vim-pathogen/autoload/pathogen.vim
 "call pathogen#infect()
 "call pathogen#helptags()
@@ -69,7 +85,6 @@ set textwidth=0  " In case someone irritatingly put autosplit in a sourced file
 "  %    :  saves and restores the buffer list
 "  n... :  where to save the viminfo files
 set viminfo='10,\"100,:500,%,n~/.viminfo
-set viminfo-=:42 | set viminfo+=:1000
 "
 "========================================================= status bar
 set laststatus=2
@@ -103,8 +118,7 @@ augroup END
 
 "colorscheme ChocolateLiquor
 "colorscheme almost-default
-colorscheme asmdev
-"colorscheme torte
+colorscheme torte
 "colorscheme rastafari
 
 " Highlight EOL whitespace, http://vim.wikia.com/wiki/Highlight_unwanted_spaces
@@ -226,8 +240,8 @@ endif
 
 set shell=bash\ --login
 
-source ~/.vim/osc52.vim
-vmap <C-c> y:call SendViaOSC52(getreg('"'))<cr>
+"source ~/.vim/osc52.vim
+"vmap <C-c> y:call SendViaOSC52(getreg('"'))<cr>
 
 autocmd Filetype json setlocal ts=2 sw=2 expandtab
 
