@@ -36,7 +36,6 @@ call plug#begin()
 Plug 'preservim/nerdtree'
 Plug 'jlanzarotta/bufexplorer'
 Plug 'vim-airline/vim-airline'
-
 call plug#end()
 
 "Replaced with Plug above
@@ -59,6 +58,7 @@ if has("autocmd")
     \ exe "norm g`\"" |
     \ endif
     aug ENG
+    au BufReadPost *.tsv setlocal tabstop=50
 endif
 
 set autoindent
@@ -250,6 +250,8 @@ autocmd Filetype json setlocal ts=2 sw=2 expandtab
 let &t_SI.="\e[5 q" "SI = INSERT mode
 let &t_SR.="\e[4 q" "SR = REPLACE mode
 let &t_EI.="\e[1 q" "EI = NORMAL mode (ELSE)
+
+packadd termdebug
 
 "Cursor settings:
 

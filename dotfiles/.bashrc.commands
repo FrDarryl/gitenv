@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/env bash
 #
 #Source machine-specific commands first
 #[ -f "${HOME}/.bashrc.commands.${HOSTNAME}" ] && source ${HOME}/.bashrc.commands.${HOSTNAME}

@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/env bash
+
 HISTSIZE=10000
 HISTFILESIZE=10000
 
