@@ -1,0 +1,378 @@
+#!/bin/env bash
+#
+#Source machine-specific commands first
+#[ -f "${HOME}/.bashrc.commands.${HOSTNAME}" ] && source ${HOME}/.bashrc.commands.${HOSTNAME}
+#
+#[ -e "${HOME}/Program_Files/Adobe/Reader 11.0/Reader/AcroRd32.exe" ] && alias acroread="${HOME}/Program_Files/Adobe/Reader\ 11.0/Reader/AcroRd32.exe"
+#
+# functions
+af() { echo "`date`:${@}" >> ~/GoodFortunes.txt ; }
+aptcs()
+{
+    echo -e "\n\n\e[00;31mRunning apt-cache search\e[00m\n\n" &&
+    sudo apt-cache search "$@";
+}
+aptin()
+{
+    echo -e "\n\n\e[00;31mRunning apt -f install\e[00m\n\n" &&
+    sudo apt -f install &&
+    echo -e "\n\n\e[00;31mRunning dpkg --configure -a\e\e[00m\n\n" &&
+    sudo dpkg --configure -a &&
+    echo -e "\n\n\e[00;31mRunning apt -y --allow-downgrades update\e\e[00m\n\n" &&
+    sudo apt -y update &&
+    echo -e "\n\n\e[00;31mRunning apt install\e[00m\n\n" &&
+    sudo apt install "$@" &&
+    echo -e "\n\n\e[00;31mRunning apt -y autoremove\e[00m\n\n" &&
+    sudo apt -y autoremove &&
+    echo -e "\n\n\e[00;31mRunning apt -y clean\e[00m\n\n" &&
+    sudo apt clean;
+}
+aptdp()
+{
+    echo -e "\n\n\e[00;31mRunning apt-rdepends\e[00m\n\n" &&
+    sudo apt-rdepends "$@";
+}
+aptls()
+{
+    echo -e "\n\n\e[00;31mRunning dpkg --get-selections\e[00m\n\n" &&
+    sudo dpkg --get-selections | grep "${1}.+\sinstall$"
+}
+aptlsall()
+{
+    echo -e "\n\n\e[00;31mSearching apt-cache for available packages matching $1\e[00m\n\n" &&
+    apt-cache search $1
+}
+aptrm()
+{
+    sudo apt remove "$@" &&
+    echo -e "\n\n\e[00;31mRunning apt -f install\e[00m\n\n" &&
+    sudo apt -y autoremove &&
+    echo -e "\n\n\e[00;31mRunning apt -y clean\e[00m\n\n" &&
+    sudo apt clean;
+}
+aptup()
+{
+    echo -e "\n\n\e[00;31mRunning apt -f install\e[00m\n\n" &&
+    sudo apt -f install &&
+    echo -e "\n\n\e[00;31mRunning dpkg --configure -a\e[00m\n\n" &&
+    sudo dpkg --configure -a &&
+    echo -e "\n\n\e[00;31mRunning apt -y update\e[00m\n\n" &&
+    sudo apt -y update &&
+    echo -e "\n\n\e[00;31mRunning apt -y upgrade\e[00m\n\n" &&
+    sudo apt -y upgrade &&
+    echo -e "\n\n\e[00;31mRunning apt -y dist-upgrade\e[00m\n\n" &&
+    sudo apt -y dist-upgrade &&
+    echo -e "\n\n\e[00;31mRunning apt -y autoremove\e[00m\n\n" &&
+    sudo apt -y autoremove &&
+    echo -e "\n\n\e[00;31mRunning apt -y clean\e[00m\n\n" &&
+    sudo apt clean;
+}
+au() { echo "`date`:${@}" >> urls ; }
+cdi()
+{
+    if [ $# -ne 1 ];
+    then
+        echo "Usage: ${FUNCNAME[0]} inode";
+    else
+        cd $(find -inum ${@:1}) ;
+    fi
+}
+cud ()
+{
+    detox *;
+    rdfind -deleteduplicates true .
+}
+debin()
+{
+    echo -e "\n\n\e[00;31mRunning apt-get -f install\e[00m\n\n" &&
+    sudo apt-get -f install &&
+    echo -e "\n\n\e[00;31mRunning dpkg --configure -a\e\e[00m\n\n" &&
+    sudo dpkg --configure -a &&
+    echo -e "\n\n\e[00;31mRunning apt-get -y update\e\e[00m\n\n" &&
+    sudo dpkg -i "$@";
+}
+debls()
+{
+    for file in /var/lib/apt/lists/*Packages; do echo "${file}" && grep -H ^Package "${file}" ; done | grep "${1}"
+}
+findgrep() {
+    find "${0}" -type f -print0 | xargs -0 grep -i "${2}";
+}
+findll() {
+    find "${0}" -type f -print0 | xargs -0 ls -l;
+}
+fr90 ()
+{
+    ffmpeg -i $1 -vf "transpose=0" "r90.${1}"
+}
+fd () {
+    find . -type d -exec ls -d {} \;|sort -f
+}
+ffmpeg-convert-webm-to-mp4 () {
+    ffmpeg -fflags +genpts -i ${1} -r 24 ${2}
+}
+ffmpeg-extract () {
+    if [ $# -ne 4 ];
+    then
+        echo "Usage: $0 InputPath StartPosition Duration OutputPath"
+    else
+#       ffmpeg -ss "${2}" -i $1 -t $3 -vcodec copy -acodec copy "${4}"
+        ffmpeg -ss "${2}" -i $1 -t $3 "${4}" &> /dev/null
+    fi
+}
+ffmpeg-merge () {
+    if [ $# -lt 3 ];
+    then
+        echo "Usage: $0 OutputPath file1 ... filen"
+    else
+        of="${1}"
+        echo "Output: $of"
+        shift
+        ffmpeg -f concat -safe 0 -i <(for f in "${@}"; do echo "file '$PWD/$f'"; done) -c copy "$of" &> /dev/null
+    fi
+}
+ffmpeg-rotate () {
+    #https://superuser.com/questions/578321/how-to-rotate-a-video-180-with-ffmpeg
+    ffmpeg -i ${2} -vf "rotate=${1}*(pi/180),format=yuv420p" -metadata:s:v rotate=0 -codec:v libx264 -codec:a copy ${3} &> /dev/null
+}
+finddup() {
+    cksum ./* | awk ' {
+                          if ( $2 in arr ) {
+                              print "duplicates ", $3, arr[$2], "duplicate filesize = ", $2
+                          } else {
+                              arr[$2]=$3
+                          }
+                      }'
+}
+gc() { grep -i "$@" ~/dropbox/data/pim/*_contacts.tsv ; }
+GetAnglicanMissalPropers() {
+    [[ $(curl -silent --head "http://www.episcopalnet.org/1928bcp/propers/missal/${1}.html" | head -1) =~ "200" ]] && lynx -dump "http://www.episcopalnet.org/1928bcp/propers/missal/${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+missal propers: //" | perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
+}
+GetCoverdalePsalm() {
+    lynx -dump "http://www.episcopalnet.org/1928bcp/psalter/ps${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+^psalms /psalms /" | perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
+}
+GetAllTranslationsFor() {
+    for file in */$1; do
+        tran=$(echo "$file" | cut -d/ -f1);
+        grep "${tran}" "${ROCKS_HOME}/data/Bibliae/eBibleDotOrg_translations.tsv";
+        Get_toml_text.sh -i $file -s $2;
+    done;
+}
+GetRSVCEMassPropers () {
+#   lynx --dump https://www.ewtn.com/catholicism/daily-readings/${1} | sed '0,/First Reading$/d' | sed '/Resources/q' | sed 's/^ \+//' | perl -pe 's/ ([0-9]+)([A-Za-z",;.]+)/\n$1$2/g' | perl -0777 -pe 's/\n(?=[A-Za-z",;.])/ /g' | sed 's/^\s\+//' | sed '/^$/d' | sed '/^[A-Za-z]\+$/d' | perl -pe 's/^([0-9]+)(\S)/$1 $2/'
+#   get_biblegateway_text.pl -u -t RSVCE $(get_universalis_refs.pl -l m -d $1 2> /dev/null)
+    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep "©" | sed -e 's/^ \+//' -e 's/.\+reading //' -e 's/^Gospel //' -e 's/ \[[0-9]\+\]©//' -e '/opyright/d'
+    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep '^ +Psalm ' | sed -e 's/^ \+//'
+}
+gf() {
+    find $1 | xargs grep -si $2 | grep -v cache
+}
+gfl() {
+    find $1 | xargs grep -sil $2 | grep -v cache
+}
+gp ()
+{
+    ps -efa | grep -i "$@" | grep -v grep | perl -pe's/\s{2,}/ /g' | cut -d ' ' -f 2 | sort | tail -1
+}
+kn() {
+    for pid in `np`;
+    do
+        kill -9 $pid
+    done
+}
+ks() {
+    kbuildsycoca4 > /dev/null 2>&1
+    kquitapp "$@" > /dev/null 2>&1
+    kstart "$@" > /dev/null 2>&1
+}
+lu() { sdcv $1 | less ; }
+md() { pandoc -s -f markdown -t man $1 | man -l - ; }
+mkcd() { mkdir $1 && cd $1 ; }
+mp() { mplayer -loop 0 "$@" > /dev/null 2>&1 ; }
+mvi() { find . -inum $1 -exec mv -i {} $2 \; ; }
+npmup() {
+    set -e
+    set -x
+
+    for package in $(npm -g outdated --parseable --depth=0 | cut -d: -f3)
+    do
+        sudo npm -g install "$package"
+    done
+}
+nvmin() {
+    if [ -z "${NODE_VERSION_DEFAULT}" ]; then
+        echo "envar NODE_VERSION_DEFAULT not set"
+        return
+    fi
+    nvm use "${NODE_VERSION_DEFAULT}"
+    n=$(which node);
+    n=${n%/bin/node};
+    chmod -R 755 $n/bin/*;
+    sudo cp -r $n/{bin,lib,share} /usr/local
+}
+opr() { ${PDF_READER_APP} "${@}"; }
+oss() { ${SPREADSHEET_APP} "${@}"; }
+owp() { ${WORD_PROCESSOR_APP} "${@}"; }
+pwjson() {
+    echo "{ \"tld-passwords\": {";
+    for tld in `ls -1 ${DROPBOX_HOME}/data/.password-store/*.gpg | perl -pe 's/^.+\/(.+)\.gpg/$1/'`;
+    do
+        echo "    \"${tld}\": \"$(pass $tld)\",";
+    done;
+    echo "    }";
+    echo "}";
+}
+rename() {
+    for file_name in *;
+    do
+        new_file_name=$(echo "${file_name}" | sed "s/$1/$2/g");
+        [ "${new_file_name}" != "${file_name}" ] && mv -i "${file_name}" "${new_file_name}"
+    done
+}
+rmi() { find . -maxdepth 1 -inum $1 -exec rm -i {} \; ; }
+sarg() { perl -p -i -e "${1}" "${$2}"; }
+sbl() { source ~/.bash_login; }
+sblv() { set -o verbose; source ~/.bash_login; set +o verbose; }
+setPrompt() {
+	# enable color support of ls and also add handy aliases
+	if [ -x /usr/bin/dircolors ] && [ "${TERM}" != "dumb" ]; then
+
+		# Attribute codes:
+		# 00=none 01=bold 04=underscore 05=blink 07=reverse 08=concealed
+
+		# Text color codes:
+		# 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
+
+		# Background color codes:
+		# 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=whitespace
+
+		# If id command returns zero, you've root access.
+		if [ $(id -u) -eq 0 ];
+		then
+#            PS1='\[\e[01;04;31m\]\!:$(date +%Y%m%dT%H%M%S):\u@\h:\w/\[\e[00m\]\[\e[01;31m\]\n#\[\e[00m\] '
+            PS1='\[\e[01;04;31m\]\!:\u@\h:\w/\[\e[00m\]\[\e[01;31m\]\n#\[\e[00m\] '
+		else
+            PS1='\[\e[01;04;36m\]\!:\u@\h:\w/\[\e[00m\]\[\e[01;36m\]\n#\[\e[00m\] '
+#            PS1='\[\e[01;04;36m\]\!:$(date +%Y%m%dT%H%M%S):\u@\h:\w/\[\e[00m\]\[\e[01;36m\]\n#\[\e[00m\] '
+		fi
+	fi
+}
+setTitle() {
+  if [[ -z "$ORIG" ]]; then
+    ORIG=$PS1
+  fi
+  TITLE="\[\e]2;$*\a\]"
+  PS1=${ORIG}${TITLE}
+}
+sos() { /usr/bin/nm -D $@ | cut -d' ' -f3 ; }
+tsvCols() {
+    let colNum=0;
+    for col in `head -1 ${1}.tsv`;
+    do
+        let colNum++;
+        echo $colNum `echo $col | cut -d';' -f 1`;
+    done
+}
+vlc() {
+    /usr/bin/vlc $1 --fullscreen --start-time=$2 --stop-time=$3 &> /dev/null
+}
+yt ()
+{
+    echo "${@}" >> ytlog;
+   yt-dlp --restrict-filename $@ &> /dev/null
+}
+
+# aliases
+alias c="cd;clear"
+alias cg="/usr/bin/google contacts list --fields=name,email,phone" # http://code.google.com/p/googlecl/wiki/ExampleScripts#Contacts
+alias cpanm="sudo cpanm --verbose" # Depends: sudo apt-get install build-essential
+alias dcsnerdtree="display ${DROPBOX_HOME}/images/cheatsheets/NERDTreeCheatsheet.jpg &"
+alias dcsyakuake="display ${DROPBOX_HOME}/images/cheatsheets/YakuakeCheatsheet.jpg &"
+alias di="/usr/bin/display"
+alias dl="wget"
+alias docx2txt=docx2txt.pl
+alias du="du -h"
+alias evcf="e ${DROPBOX_HOME}/data/pim/contacts.vcf"
+alias e="vim.sh"
+alias ecss="${DROPBOX_HOME}/apps/java/juststyle.jar"
+alias et="e /tmp/temp"
+alias fa="find . -printf '%CY-%Cm-%Cd_%CH:%CM %p %l\n'"
+alias fb="pcmanfm-qt"
+alias fe=ffmpeg-extract
+alias ff="firefox-trunk&"
+alias fln="find $PWD -type l -exec ls -o {} \;"
+alias flnd="find ~ -type l -exec ls -o {} \; | grep dropbox >| ${DROPBOX_HOME}/symlinks.dropbox.${USER}@${HOSTNAME}.txt"
+alias fm=ffmpeg-merge
+alias fp="firefox-trunk --private&"
+alias gemup="gem update && gem cleanup"
+#alias gh="history | grep -i"
+alias girb="rvm use 2.0.0 && google-api oauth-2-login --client-id='427178904171.apps.googleusercontent.com' --client-secret='mUlrrm1VBFs3mE2oWgVyAbF2' --scope='https://www.googleapis.com/auth/plus.me' && google-api irb"
+alias grep="/bin/grep -E --color=auto"
+alias hi=history
+alias k9="kill -9"
+alias kc="xev | grep -A2 --line-buffered '^KeyRelease' | sed -n '/keycode /s/^.*keycode \([0-9]*\).* (.*, \(.*\)).*$/\1 \2/p'"
+alias ld="ls | grep \/"
+alias less="less -r"
+alias ll="/bin/ls --color=auto -Ahlp --time-style=long-iso"
+alias lld="/bin/ls --color=auto -Ahlp --time-style=long-iso | grep ^d"
+alias lll="/bin/ls --color=auto -Ahlp --time-style=long-iso | grep ^l"
+alias lls="/bin/ls --color=auto -Ahlp --time-style=long-iso --sort=size"
+alias llt="/bin/ls --color=auto -Ahlp --time-style=long-iso | head"
+alias ls="/bin/ls --color=auto -Ap"
+alias lsi="/bin/ls --color=auto -1Aip"
+alias lt="/bin/ls --color=auto -Ahlpt --time-style=long-iso | head -20"
+alias lynx="/usr/bin/lynx -accept_all_cookies"
+alias more="less -r"
+alias mv="mv -i"
+alias myip="w3m -dump http://echoip.com/"
+alias nc="nesh -c"
+alias npmin="sudo npm -g install"
+alias ns="netstat -tulpn"
+alias pd="cd ${OLDPWD}"
+alias pip="python -m pip"
+alias pip3="python3 -m pip"
+alias pkup="pkcon refresh && pkcon update"
+alias plasma_restart="kbuildsycoca4 && kquitapp plasma-desktop && kstart plasma-desktop"
+alias pp="tr -cd '\12\40-\176' | a2ps --columns=1 --font='12' --portrait"
+alias pslpr="perl -i.bak -pe 's/[^[:ascii:]]//g' | textfmt -s A4 -p 12 | lpr -P HP_LaserJet_1100"
+alias pwget="pass"
+alias pwset="pass generate -n"
+alias rm="rm -i"
+alias rms="/usr/bin/shred -uvz"
+#alias sftpsony="sftp -v -p 2222 sftp://root@192.168.0.7"
+#alias sshec2="ssh -l ubuntu -i ${EC2_HOME}/dlcjordankey.pem -p 22 ec2-54-216-219-132.eu-west-1.compute.amazonaws.com"
+#alias sshsony="ssh -v -p 2222 sftp://root@192.168.0.2"
+#alias ssr="/usr/bin/simplescreenrecorder&"
+alias sa="sudo apt-get"
+alias scd="cat ~/ChurchDirectory.tsv|grep"
+alias sfg="find|grep"
+alias shg="history|grep"
+alias spw="cat ~/passwd.json|grep"
+alias sshme="ssh frdarryl@ifordparish.org.uk"
+alias sumfile="awk '{ sum += $1 } END { print sum }'"
+alias ta="tail /var/log/apache2/error.log"
+alias unidecode="perl -C -MText::Unidecode -n -i -e'print unidecode( \$_)'"
+alias useradd="adduser"
+#alias vascii="${WEB_BROWSER} http://ascii.cl/htmlcodes.htm"
+#alias vcard_find_missing_end="pcregrep -nM '^[^E].*$\nBEGIN:VCARD'"
+alias vd="youtube-dl -o \"%(title)s-%(id)s.%(ext)s\""
+#alias vfb="${WEB_BROWSER} http://www.facebook.com/revdjordan"
+#alias vgcal="${WEB_BROWSER} https://www.google.com/calendar/render?tab=mc&mode=day"
+#alias vgcon="${WEB_BROWSER} https://www.google.com/contacts/#contacts"
+#alias vgdoc="${WEB_BROWSER} https://docs.google.com/?tab=mo&authuser=0&pli=1#home"
+#alias vgloom="${WEB_BROWSER} http://www.bbc.co.uk/weather/2655095/extended"
+#alias vgmail="${WEB_BROWSER} https://mail.google.com/mail/?shva=1#inbox"
+#alias vgmap="${WEB_BROWSER} http://g.co/maps/e7cwm"
+#alias vhmd="${WEB_BROWSER} https://docs.google.com/spreadsheet/ccc?key=0AjHMvrmueFDwdEhVSG56Q2ZlRTJFUFdiell0ekhKQ1E"
+alias vi="vim"
+#alias vvmailhelp="w3m -dump http://danielchoi.com/software/vmail.html | less"
+#alias vrcl="${WEB_BROWSER} http://almanac.oremus.org/lectionary/2012.html"
+#alias vvm="${WEB_BROWSER} https://ebill2.virginmedia.com/ebill2/bill-overview.jsf"
+#alias web2py_start="cd ~/web2py/;python web2py.py -a 'incordeiesu' -c server.crt -k server.key -i 0.0.0.0 -p 443"
+alias wgo="wget -O"
+alias wstc="~/bin/wstc.pl"
+alias xhi="xrandr -s 1440x900"
+alias xl="xine --loop"
+alias xlo="xrandr -s 1024x768"
+alias yto=" yt -o"
+

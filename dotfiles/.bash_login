@@ -1,0 +1,12 @@
+#!/bin/env bash
+
+HISTSIZE=10000
+HISTFILESIZE=10000
+
+[ -w ~/.loginSessions ] && echo "`date --rfc-3339="ns"`|`uname -n`" >> ~/.loginSessions
+[ -r ~/.xmodmap ] && [ -e /usr/bin/xmodmap ] && xmodmap ~/.xmodmap
+[ -r ~/.Xdefaults ] && [ -e /usr/bin/xrdb ] && xrdb -load ~/.Xdefaults
+[ -r ~/.bashrc ] && source ~/.bashrc
+
+xmodmap -e 'clear Lock' -e 'keycode 0x42 = Escape'
+. "$HOME/.cargo/env"
