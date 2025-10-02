@@ -1,48 +1,50 @@
 #!/bin/env bash
 
 # Load machine-specific environment
-[ -f ${HOME}/.bashrc.envars.${HOSTNAME} ] && source ${HOME}/.bashrc.envars.${HOSTNAME}
+[[ -f ${HOME}/.bashrc.envars.${HOSTNAME} ]] && source ${HOME}/.bashrc.envars.${HOSTNAME}
 
 # Shell text colours
-[ -r ${HOME}/.dircolors ] &&
-    export DIR_COLORS=${HOME}/.dircolors ||
-    export DIR_COLORS=
+[[ -r ${HOME}/.dircolors ]] &&
+    export DIR_COLORS="${HOME}/.dircolors" ||
+    export DIR_COLORS=''
 
-# X-windows and CLI default apps and commands
-export EDITOR=vim
-export FILE_MANAGER=vifm &&
-    [ -n "${DISPLAY}" ] &&
-    export FILE_MANAGER=pcmanfm-qt # dolphin requires full-on KDE
-export MAIL=/var/spool/mail/frdarryl
-#export OFFICE_SUITE="${EDITOR}" &&
-#    [ -n "${DISPLAY}" ] &&
-#    export OFFICE_SUITE=loffice
-export PAGER=less
-export PDF_READER_APP="evince" # okular requires KDE
-#export PRINTER=HP_LaserJet_1100
-#export SPREADSHEET_APP="localc"
-export TERM=xterm-256color
-export TERMINAL_EMULATOR=qterminal &&
-    [ -n "${DISPLAY}" ] &&
-    export TERMINAL_EMULATOR=yakuake
-export VISUAL=vim
-export WEB_BROWSER=lynx &&
-    [ -n "${DISPLAY}" ] &&
-    export WEB_BROWSER=google-chrome
-export WORD_PROCESSOR_APP=abiword
+# X-windows, etc. versus CLI environment default apps and commands
+
+if [[ -n "${DISPLAY}" ]]; then
+    export EDITOR='vim'
+    export FILE_MANAGER='vifm'
+    #export MAIL='/var/spool/mail/frdarryl'
+    export OFFICE_SUITE="${EDITOR}"
+    export PAGER='less'
+    export PDF_READER_APP='evince' # okular requires KDE
+    export PRINTER=''
+    export SPREADSHEET_APP=''
+    export TERM='xterm-256color'
+    export VISUAL='vim'
+    export WEB_BROWSER='lynx'
+    export WORD_PROCESSOR_APP="${EDITOR}"
+else
+    export EDITOR='gvim'
+    export FILE_MANAGER='pcmanfm-qt'
+    export TERMINAL_EMULATOR='yakuake'
+    export WEB_BROWSER='google-chrome'
+    export WORD_PROCESSOR_APP='abiword'
+    export OFFICE_SUITE='loffice'
+fi
 
 # X Desktop Group (cf. freedesktop.org) Open Desktop environment
 export XDG_CACHE_HOME="${HOME}/.cache"
 export XDG_CONFIG_HOME="${HOME}/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_SCREENSAVER="/usr/bin/xscreensaver"
+export XDG_SCREENSAVER='/usr/bin/xscreensaver'
 export XDG_STATE_HOME="${HOME}/.local/state"
 
 # Populate MYPATH envar with my app- and language-specific executables directories
-export MYPATH="."
+export MYPATH='.' # $PWD (Present/current Working Directory) always first in priority
 
 [[ -d "${HOME}/bin" ]] &&
     MYPATH="${MYPATH}:${HOME}/bin"
+
 [[ -d "${HOME}/.local/bin" ]] &&
     MYPATH="${MYPATH}:${HOME}/.local/bin"
 
@@ -59,21 +61,21 @@ export MYPATH="."
    export ECLIPSE_HOME="${HOME}/eclipse/eclipse_luna" &&
    MYPATH="${MYPATH}:${ECLIPSE_HOME}/bin"
 
-# My https://github.com/FrDarryl repositories
+# My https://github.com/FrDarryl repository
 [[ -d "${HOME}/GitRepos/gitenv" ]] &&
     export GITENV_HOME="${HOME}/GitRepos/gitenv" &&
-    MYPATH="${MYPATH}:${GITENV_HOME}/scripts"
+    MYPATH="${MYPATH}:${GITENV_HOME}/bin"
+
+# My https://github.com/ROCKS repository
 [[ -d "${HOME}/GitRepos/ROCKS" ]]  &&
     export ROCKS_HOME="${HOME}/GitRepos/ROCKS" &&
-    MYPATH="${MYPATH}:${ROCKS_HOME}/scripts" &&
-    export ROCKS_BIBLIAE="${ROCKS_HOME}/data/Bibliae" &&
-    export ROCKS_DOCS="${ROCKS_HOME}/docs" &&
-    export ROCKS_RITUS="${ROCKS_HOME}/data/Ritus"
+    MYPATH="${MYPATH}:${ROCKS_HOME}/bin" &&
 
 # My Golang environment
 [[ -d "${HOME}/go" ]] &&
     export GOPATH="${HOME}/go" &&
     MYPATH="${MYPATH}:${GOPATH_HOME}/bin"
+
 [[ -z "${GOROOT}" ]]  &&
     [[ -d "/usr/local/go" ]] &&
     export GOROOT="/usr/local/go" &&
@@ -90,7 +92,7 @@ export MYPATH="."
 [[ -d "${HOME}/.pyenv" ]] &&
     export PYENV_ROOT="${HOME}/.pyenv" &&
     MYPATH="${MYPATH}:${PYENV_ROOT}/bin" &&
-    export PARINIT="rTbgqR B=.,?_A_a Q=_s>| w72" &&
+    export PARINIT='rTbgqR B=.,?_A_a Q=_s>| w72' &&
     eval "$(pyenv virtualenv-init -)"
 
 # My Rakudo (formerly Perl6) environment
@@ -107,16 +109,16 @@ export MYPATH="."
 [[ -d "${HOME}/.rvm" ]] &&
     export RVM_HOME="${HOME}/.rvm" &&
     MYPATH="${MYPATH}:${RVM_HOME}/bin &&
-    [[ -s "${RVM_HOME}/scripts/rvm" ]] &&
-    source "${RVM_HOME}/scripts/rvm" # Load RVM into a shell session *as a function*"
+    [[ -s "${RVM_HOME}/bin/rvm" ]] &&
+    source "${RVM_HOME}/bin/rvm" # Load RVM into a shell session *as a function*"
 
 # My Windows cygwin environment
 [[ -d "/cygdrive/c" ]] &&
     export WINC_HOME="/cygdrive/c"
 
 # Use nightly KDE Neon bleeding edge executables (if you dare)
-[ -d /opt/project-neon/bin ] &&
-   MYPATH=${MYPATH:-.}:/opt/project-neon/bin
+[[ -d /opt/project-neon/bin ]] &&
+    MYPATH="${MYPATH}:/opt/project-neon/bin"
 
 export SYSPATH="${SYSPATH:-$PATH}"
 

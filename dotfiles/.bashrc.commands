@@ -144,25 +144,22 @@ finddup() {
                           }
                       }'
 }
+gaf() {
+    Get_articuli-url_as_txt_ps_and_pdf_files.sh -u "${1}"
+}
 gc() { grep -i "$@" ~/dropbox/data/pim/*_contacts.tsv ; }
-GetAnglicanMissalPropers() {
+gamp() {
     [[ $(curl -silent --head "http://www.episcopalnet.org/1928bcp/propers/missal/${1}.html" | head -1) =~ "200" ]] && lynx -dump "http://www.episcopalnet.org/1928bcp/propers/missal/${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+missal propers: //" | perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
 }
-GetCoverdalePsalm() {
+gcp() {
     lynx -dump "http://www.episcopalnet.org/1928bcp/psalter/ps${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+^psalms /psalms /" | perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
 }
-GetAllTranslationsFor() {
+geat() {
     for file in */$1; do
         tran=$(echo "$file" | cut -d/ -f1);
-        grep "${tran}" "${ROCKS_HOME}/data/Bibliae/eBibleDotOrg_translations.tsv";
+        grep "${tran}" "${ROCKS_HOME}/data/Bibliae/ebible-org_translations.tsv";
         Get_toml_text.sh -i $file -s $2;
     done;
-}
-GetRSVCEMassPropers () {
-#   lynx --dump https://www.ewtn.com/catholicism/daily-readings/${1} | sed '0,/First Reading$/d' | sed '/Resources/q' | sed 's/^ \+//' | perl -pe 's/ ([0-9]+)([A-Za-z",;.]+)/\n$1$2/g' | perl -0777 -pe 's/\n(?=[A-Za-z",;.])/ /g' | sed 's/^\s\+//' | sed '/^$/d' | sed '/^[A-Za-z]\+$/d' | perl -pe 's/^([0-9]+)(\S)/$1 $2/'
-#   get_biblegateway_text.pl -u -t RSVCE $(get_universalis_refs.pl -l m -d $1 2> /dev/null)
-    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep "©" | sed -e 's/^ \+//' -e 's/.\+reading //' -e 's/^Gospel //' -e 's/ \[[0-9]\+\]©//' -e '/opyright/d'
-    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep '^ +Psalm ' | sed -e 's/^ \+//'
 }
 gf() {
     find $1 | xargs grep -si $2 | grep -v cache
@@ -174,6 +171,12 @@ gp ()
 {
     ps -efa | grep -i "$@" | grep -v grep | perl -pe's/\s{2,}/ /g' | cut -d ' ' -f 2 | sort | tail -1
 }
+grmp() {
+#   lynx --dump https://www.ewtn.com/catholicism/daily-readings/${1} | sed '0,/First Reading$/d' | sed '/Resources/q' | sed 's/^ \+//' | perl -pe 's/ ([0-9]+)([A-Za-z",;.]+)/\n$1$2/g' | perl -0777 -pe 's/\n(?=[A-Za-z",;.])/ /g' | sed 's/^\s\+//' | sed '/^$/d' | sed '/^[A-Za-z]\+$/d' | perl -pe 's/^([0-9]+)(\S)/$1 $2/'
+#   get_biblegateway_text.pl -u -t RSVCE $(get_universalis_refs.pl -l m -d $1 2> /dev/null)
+    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep "©" | sed -e 's/^ \+//' -e 's/.\+reading //' -e 's/^Gospel //' -e 's/ \[[0-9]\+\]©//' -e '/opyright/d'
+    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep '^ +Psalm ' | sed -e 's/^ \+//'
+}
 kn() {
     for pid in `np`;
     do
@@ -184,17 +187,6 @@ ks() {
     kbuildsycoca4 > /dev/null 2>&1
     kquitapp "$@" > /dev/null 2>&1
     kstart "$@" > /dev/null 2>&1
-}
-ldu() {
-    lynx -dump $1 | \
-        perl -lpe "s/^\s+//"| \
-        perl -lpe "s/\[\d+\]//g" | \
-        awk '!/\[.+\]/' | \
-        awk '!/Free ebook/' | \
-        perl -p0e "s/.+DONATE TODAY//gms" | \
-        perl -p0e "s/Read more.+//gms" | \
-        uniq | \
-        perl -00 -lpe 'tr/\n/ /'
 }
 lu() { sdcv $1 | less ; }
 md() { pandoc -s -f markdown -t man $1 | man -l - ; }

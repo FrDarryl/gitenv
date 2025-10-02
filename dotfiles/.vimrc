@@ -23,6 +23,8 @@ autocmd!
 " Set DOS file to UNIX :set fileformat=unix
 "
 " Indent all lines in buffer in Normal mode: G=gg
+"
+" Delete all buffers (not their associated files): bufdo bd
 
 set nocp
 
