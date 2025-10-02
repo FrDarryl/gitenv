@@ -167,6 +167,15 @@ gf() {
 gfl() {
     find $1 | xargs grep -sil $2 | grep -v cache
 }
+gitup()
+{
+    BoldRedFont='\n\n\e[00;31m'
+    NormalFont='\e[00m\n\n'
+    echo -e "${BoldRedFont}Running git commit -a${NormalFont}" &&
+    git commit -a &&
+    echo -e "${BoldRedFont}Running git push origin main${NormalFont}" &&
+    git push origin main
+}
 gp ()
 {
     ps -efa | grep -i "$@" | grep -v grep | perl -pe's/\s{2,}/ /g' | cut -d ' ' -f 2 | sort | tail -1
