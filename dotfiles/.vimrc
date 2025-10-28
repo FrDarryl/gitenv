@@ -75,6 +75,7 @@ set nocompatible              " be iMproved, required
 set nowrap
 set number
 set shiftwidth=4
+set smartcase
 set smartindent
 set softtabstop=4
 set tabstop=4

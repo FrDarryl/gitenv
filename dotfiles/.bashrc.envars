@@ -69,7 +69,10 @@ export MYPATH='.' # $PWD (Present/current Working Directory) always first in pri
 # My https://github.com/ROCKS repository
 [[ -d "${HOME}/GitRepos/ROCKS" ]]  &&
     export ROCKS_HOME="${HOME}/GitRepos/ROCKS" &&
-    MYPATH="${MYPATH}:${ROCKS_HOME}/bin" &&
+    source "${ROCKS_HOME}/bin/Initialise.sh" &&
+    MYPATH="${MYPATH}:${ROCKS_BIN}" &&
+    export ROCKS_INTERACTIVE='TRUE' &&
+    export ROCKS_LOGLEVEL='INFO'
 
 # My Golang environment
 [[ -d "${HOME}/go" ]] &&

@@ -95,6 +95,9 @@ debls()
 {
     for file in /var/lib/apt/lists/*Packages; do echo "${file}" && grep -H ^Package "${file}" ; done | grep "${1}"
 }
+f100() {
+    find . -type f -size +100M -exec du -h {} + | sort -rh
+}
 findgrep() {
     find "${0}" -type f -print0 | xargs -0 grep -i "${2}";
 }
@@ -145,7 +148,7 @@ finddup() {
                       }'
 }
 gaf() {
-    Get_articuli-url_as_txt_ps_and_pdf_files.sh -u "${1}"
+    Get_url_data_files.sh -d "Articuli" -u "${1}" # repo dir ROCKS/bin/
 }
 gc() { grep -i "$@" ~/dropbox/data/pim/*_contacts.tsv ; }
 gamp() {
@@ -157,15 +160,15 @@ gcp() {
 geat() {
     for file in */$1; do
         tran=$(echo "$file" | cut -d/ -f1);
-        grep "${tran}" "${ROCKS_HOME}/data/Bibliae/ebible-org_translations.tsv";
+        \grep "${tran}" "${ROCKS_HOME}/data/Bibliae/ebible-org_translations.tsv";
         Get_toml_text.sh -i $file -s $2;
     done;
 }
 gf() {
-    find $1 | xargs grep -si $2 | grep -v cache
+    find $1 | xargs \grep -si $2 | \grep -v cache
 }
 gfl() {
-    find $1 | xargs grep -sil $2 | grep -v cache
+    find $1 | xargs \grep -sil $2 | \grep -v cache
 }
 gitup()
 {
@@ -176,15 +179,25 @@ gitup()
     echo -e "${BoldRedFont}Running git push origin main${NormalFont}" &&
     git push origin main
 }
+glff() {
+    fc-list :lang="${1}" | \grep "Free" | perl -lpe "s/^(.+?):.+$/\1/" >| "${1}_FreeFonts.lst"
+}
 gp ()
 {
-    ps -efa | grep -i "$@" | grep -v grep | perl -pe's/\s{2,}/ /g' | cut -d ' ' -f 2 | sort | tail -1
+    ps -efa | \grep -i "$@" | \grep -v grep | perl -pe 's/\s{2,}/ /g' | cut -d ' ' -f 2 | sort | tail -1
 }
 grmp() {
 #   lynx --dump https://www.ewtn.com/catholicism/daily-readings/${1} | sed '0,/First Reading$/d' | sed '/Resources/q' | sed 's/^ \+//' | perl -pe 's/ ([0-9]+)([A-Za-z",;.]+)/\n$1$2/g' | perl -0777 -pe 's/\n(?=[A-Za-z",;.])/ /g' | sed 's/^\s\+//' | sed '/^$/d' | sed '/^[A-Za-z]\+$/d' | perl -pe 's/^([0-9]+)(\S)/$1 $2/'
 #   get_biblegateway_text.pl -u -t RSVCE $(get_universalis_refs.pl -l m -d $1 2> /dev/null)
-    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep "©" | sed -e 's/^ \+//' -e 's/.\+reading //' -e 's/^Gospel //' -e 's/ \[[0-9]\+\]©//' -e '/opyright/d'
-    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | grep '^ +Psalm ' | sed -e 's/^ \+//'
+    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | \grep "©" | sed -e 's/^ \+//' -e 's/.\+reading //' -e 's/^Gospel //' -e 's/ \[[0-9]\+\]©//' -e '/opyright/d'
+    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | \grep '^ +Psalm ' | sed -e 's/^ \+//'
+}
+gt() {
+    dasel -f $1 -s $2 | perl -lpe 's/^\"//' | perl -lpe 's/\"$//'
+}
+Jpg2Pdf() {
+    # Package imagemagick
+    convert $1 $2
 }
 kn() {
     for pid in `np`;
@@ -242,7 +255,7 @@ rename() {
     done
 }
 rmi() { find . -maxdepth 1 -inum $1 -exec rm -i {} \; ; }
-sarg() { perl -p -i -e "${1}" "${$2}"; }
+Rst2Pdf() { Create_pdf_from_file $1 $2; } # function in repo ROCKS/bin/Utilities.sh
 sbl() { source ~/.bash_login; }
 sblv() { set -o verbose; source ~/.bash_login; set +o verbose; }
 setPrompt() {
@@ -288,6 +301,7 @@ tsvCols() {
 vlc() {
     /usr/bin/vlc $1 --fullscreen --start-time=$2 --stop-time=$3 &> /dev/null
 }
+Vcs2Tsv() { Create_tsv_from_vcs $1 $2; } # function in repo ROCKS/bin/Utilities.sh
 yt ()
 {
     echo "${@}" >> ytlog;
@@ -313,21 +327,19 @@ alias fb="pcmanfm-qt"
 alias fe=ffmpeg-extract
 alias ff="firefox-trunk&"
 alias fln="find $PWD -type l -exec ls -o {} \;"
-alias flnd="find ~ -type l -exec ls -o {} \; | grep dropbox >| ${DROPBOX_HOME}/symlinks.dropbox.${USER}@${HOSTNAME}.txt"
+alias flnd="find ~ -type l -exec ls -o {} \; | \grep dropbox >| ${DROPBOX_HOME}/symlinks.dropbox.${USER}@${HOSTNAME}.txt"
 alias fm=ffmpeg-merge
-alias fp="firefox-trunk --private&"
 alias gemup="gem update && gem cleanup"
-#alias gh="history | grep -i"
-alias girb="rvm use 2.0.0 && google-api oauth-2-login --client-id='427178904171.apps.googleusercontent.com' --client-secret='mUlrrm1VBFs3mE2oWgVyAbF2' --scope='https://www.googleapis.com/auth/plus.me' && google-api irb"
-alias grep="/bin/grep -E --color=auto"
+alias grep="/bin/grep -P --color=auto"
+alias grep_minusmasses="grep -v '^(Common|Requiem|Ritual|Votive|Various)' Lookup_Propria_PropersIDs.tsv >| ${ROCKS_LOOKUP}/Lookup_Propria_PropersIDs_MinusMasses.tsv"
 alias hi=history
 alias k9="kill -9"
-alias kc="xev | grep -A2 --line-buffered '^KeyRelease' | sed -n '/keycode /s/^.*keycode \([0-9]*\).* (.*, \(.*\)).*$/\1 \2/p'"
-alias ld="ls | grep \/"
+alias kc="xev | \grep -A2 --line-buffered '^KeyRelease' | sed -n '/keycode /s/^.*keycode \([0-9]*\).* (.*, \(.*\)).*$/\1 \2/p'"
+alias ld="ls | \grep \/"
 alias less="less -r"
 alias ll="/bin/ls --color=auto -Ahlp --time-style=long-iso"
-alias lld="/bin/ls --color=auto -Ahlp --time-style=long-iso | grep ^d"
-alias lll="/bin/ls --color=auto -Ahlp --time-style=long-iso | grep ^l"
+alias lld="/bin/ls --color=auto -Ahlp --time-style=long-iso | \grep ^d"
+alias lll="/bin/ls --color=auto -Ahlp --time-style=long-iso | \grep ^l"
 alias lls="/bin/ls --color=auto -Ahlp --time-style=long-iso --sort=size"
 alias llt="/bin/ls --color=auto -Ahlp --time-style=long-iso | head"
 alias ls="/bin/ls --color=auto -Ap"
@@ -341,6 +353,8 @@ alias nc="nesh -c"
 alias npmin="sudo npm -g install"
 alias ns="netstat -tulpn"
 alias pd="cd ${OLDPWD}"
+alias perlPIE="perl -p -i -e"
+alias pesh="pesh.sh" # repo dir: gitenv/bin
 alias pip="python -m pip"
 alias pip3="python3 -m pip"
 alias pkup="pkcon refresh && pkcon update"
