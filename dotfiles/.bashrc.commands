@@ -5,70 +5,77 @@
 #
 #[ -e "${HOME}/Program_Files/Adobe/Reader 11.0/Reader/AcroRd32.exe" ] && alias acroread="${HOME}/Program_Files/Adobe/Reader\ 11.0/Reader/AcroRd32.exe"
 #
+
+# scalars
+
+BoldRedFont='\e[00;31m'
+NormalFont='\e[00m'
+
 # functions
-af() { echo "`date`:${@}" >> ~/GoodFortunes.txt ; }
-aptcs()
+
+function RedRunCmd()
 {
-    echo -e "\n\n\e[00;31mRunning apt-cache search\e[00m\n\n" &&
-    sudo apt-cache search "$@";
+    cmd=$(echo "'$*'" | perl -lpe "s/'//g")
+    echo -e "\n\n${BoldRedFont}Running cmd '${cmd}'...${NormalFont}\n\n" &&
+    ${cmd}
 }
-aptin()
+
+function af() { echo "`date`:${@}" >> ~/GoodFortunes.txt ; }
+
+function aptcs()
 {
-    echo -e "\n\n\e[00;31mRunning apt -f install\e[00m\n\n" &&
-    sudo apt -f install &&
-    echo -e "\n\n\e[00;31mRunning dpkg --configure -a\e\e[00m\n\n" &&
-    sudo dpkg --configure -a &&
-    echo -e "\n\n\e[00;31mRunning apt -y --allow-downgrades update\e\e[00m\n\n" &&
-    sudo apt -y update &&
-    echo -e "\n\n\e[00;31mRunning apt install\e[00m\n\n" &&
-    sudo apt install "$@" &&
-    echo -e "\n\n\e[00;31mRunning apt -y autoremove\e[00m\n\n" &&
-    sudo apt -y autoremove &&
-    echo -e "\n\n\e[00;31mRunning apt -y clean\e[00m\n\n" &&
-    sudo apt clean;
+    RedRunCmd 'apt-cache search'
 }
-aptdp()
+
+function aptin()
 {
-    echo -e "\n\n\e[00;31mRunning apt-rdepends\e[00m\n\n" &&
-    sudo apt-rdepends "$@";
+    RedRunCmd 'sudo apt -f install'
+    RedRunCmd 'sudo dpkg --configure -a'
+    RedRunCmd 'sudo apt -y update'
+    pkgs=$(echo "'$*'" | perl -lpe "s/'//g")
+    RedRunCmd "sudo apt install ${pkgs}"
+    RedRunCmd 'sudo apt -y autoremove'
+    RedRunCmd 'sudo apt clean'
 }
-aptls()
+
+function aptdp()
 {
-    echo -e "\n\n\e[00;31mRunning dpkg --get-selections\e[00m\n\n" &&
-    sudo dpkg --get-selections | grep "${1}.+\sinstall$"
+    pkgs=$(echo "'$*'" | perl -lpe "s/'//g")
+    RedRunCmd "sudo apt rdepends ${pkgs}"
 }
-aptlsall()
+
+function aptls()
 {
-    echo -e "\n\n\e[00;31mSearching apt-cache for available packages matching $1\e[00m\n\n" &&
-    apt-cache search $1
+    RedRunCmd "sudo dpkg --get-selections ${1}" | grep "${1}.+\sinstall$"
 }
-aptrm()
+
+function aptlsall()
 {
-    sudo apt remove "$@" &&
-    echo -e "\n\n\e[00;31mRunning apt -f install\e[00m\n\n" &&
-    sudo apt -y autoremove &&
-    echo -e "\n\n\e[00;31mRunning apt -y clean\e[00m\n\n" &&
-    sudo apt clean;
+    RedRunCmd "apt-cache search ${1}"
 }
-aptup()
+
+function aptrm()
 {
-    echo -e "\n\n\e[00;31mRunning apt -f install\e[00m\n\n" &&
-    sudo apt -f install &&
-    echo -e "\n\n\e[00;31mRunning dpkg --configure -a\e[00m\n\n" &&
-    sudo dpkg --configure -a &&
-    echo -e "\n\n\e[00;31mRunning apt -y update\e[00m\n\n" &&
-    sudo apt -y update &&
-    echo -e "\n\n\e[00;31mRunning apt -y upgrade\e[00m\n\n" &&
-    sudo apt -y upgrade &&
-    echo -e "\n\n\e[00;31mRunning apt -y dist-upgrade\e[00m\n\n" &&
-    sudo apt -y dist-upgrade &&
-    echo -e "\n\n\e[00;31mRunning apt -y autoremove\e[00m\n\n" &&
-    sudo apt -y autoremove &&
-    echo -e "\n\n\e[00;31mRunning apt -y clean\e[00m\n\n" &&
-    sudo apt clean;
+    pkgs=$(echo "'$*'" | perl -lpe "s/'//g")
+    RedRunCmd "sudo apt remove ${pkgs}"
+    RedRunCmd 'sudo apt -y autoremove'
+    RedRunCmd 'sudo apt clean'
 }
-au() { echo "`date`:${@}" >> urls ; }
-cdi()
+
+function aptup()
+{
+    RedRunCmd 'sudo apt -f install'
+    RedRunCmd 'sudo dpkg --configure -a'
+    RedRunCmd 'sudo apt -y update'
+    RedRunCmd 'sudo apt -y upgrade'
+    RedRunCmd 'sudo apt -y dist-upgrade'
+    RedRunCmd 'sudo apt -y autoremove'
+    RedRunCmd 'sudo apt clean'
+}
+
+function au() { echo "`date`:${@}" >> urls ; }
+
+function cdi()
 {
     if [ $# -ne 1 ];
     then
@@ -77,44 +84,50 @@ cdi()
         cd $(find -inum ${@:1}) ;
     fi
 }
-cud ()
+
+function cud ()
 {
     detox *;
     rdfind -deleteduplicates true .
 }
-debin()
+
+function debin()
 {
-    echo -e "\n\n\e[00;31mRunning apt-get -f install\e[00m\n\n" &&
-    sudo apt-get -f install &&
-    echo -e "\n\n\e[00;31mRunning dpkg --configure -a\e\e[00m\n\n" &&
-    sudo dpkg --configure -a &&
-    echo -e "\n\n\e[00;31mRunning apt-get -y update\e\e[00m\n\n" &&
-    sudo dpkg -i "$@";
+    RedRunCmd 'sudo apt-get -f install'
+    RedRunCmd 'sudo dpkg --configure -a'
+    pkgs=$(echo "'$*'" | perl -lpe "s/'//g")
+    RedRunCmd "sudo dpkg -i ${pkgs}";
 }
-debls()
+
+function debls()
 {
-    for file in /var/lib/apt/lists/*Packages; do echo "${file}" && grep -H ^Package "${file}" ; done | grep "${1}"
+    for file in /var/lib/apt/lists/*Packages; do
+        echo "${file}" && grep -H ^Package "${file}"
+    done | grep "${1}"
 }
-f100() {
+
+function f100() {
     find . -type f -size +100M -exec du -h {} + | sort -rh
 }
-findgrep() {
-    find "${0}" -type f -print0 | xargs -0 grep -i "${2}";
+
+function fd () {
+    find . -type d -exec ls -d {} \;|sort -f
 }
-findll() {
+
+function fll() {
     find "${0}" -type f -print0 | xargs -0 ls -l;
 }
-fr90 ()
+
+function fr90 ()
 {
     ffmpeg -i $1 -vf "transpose=0" "r90.${1}"
 }
-fd () {
-    find . -type d -exec ls -d {} \;|sort -f
-}
-ffmpeg-convert-webm-to-mp4 () {
+
+function ffmpeg-convert-webm-to-mp4 () {
     ffmpeg -fflags +genpts -i ${1} -r 24 ${2}
 }
-ffmpeg-extract () {
+
+function ffmpeg-extract () {
     if [ $# -ne 4 ];
     then
         echo "Usage: $0 InputPath StartPosition Duration OutputPath"
@@ -123,7 +136,8 @@ ffmpeg-extract () {
         ffmpeg -ss "${2}" -i $1 -t $3 "${4}" &> /dev/null
     fi
 }
-ffmpeg-merge () {
+
+function ffmpeg-merge () {
     if [ $# -lt 3 ];
     then
         echo "Usage: $0 OutputPath file1 ... filen"
@@ -134,11 +148,13 @@ ffmpeg-merge () {
         ffmpeg -f concat -safe 0 -i <(for f in "${@}"; do echo "file '$PWD/$f'"; done) -c copy "$of" &> /dev/null
     fi
 }
-ffmpeg-rotate () {
+
+function ffmpeg-rotate () {
     #https://superuser.com/questions/578321/how-to-rotate-a-video-180-with-ffmpeg
     ffmpeg -i ${2} -vf "rotate=${1}*(pi/180),format=yuv420p" -metadata:s:v rotate=0 -codec:v libx264 -codec:a copy ${3} &> /dev/null
 }
-finddup() {
+
+function finddup() {
     cksum ./* | awk ' {
                           if ( $2 in arr ) {
                               print "duplicates ", $3, arr[$2], "duplicate filesize = ", $2
@@ -147,77 +163,102 @@ finddup() {
                           }
                       }'
 }
-gaf() {
+
+function gaf() {
     Get_url_data_files.sh -d "Articuli" -u "${1}" # repo dir ROCKS/bin/
 }
-gc() { grep -i "$@" ~/dropbox/data/pim/*_contacts.tsv ; }
-gamp() {
-    [[ $(curl -silent --head "http://www.episcopalnet.org/1928bcp/propers/missal/${1}.html" | head -1) =~ "200" ]] && lynx -dump "http://www.episcopalnet.org/1928bcp/propers/missal/${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+missal propers: //" | perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
+
+function gamp() {
+    [[ $(curl -silent --head "http://www.episcopalnet.org/1928bcp/propers/missal/${1}.html" | head -1) =~ "200" ]] &&
+        lynx -dump "http://www.episcopalnet.org/1928bcp/propers/missal/${1}.html" |
+        perl -pe "s/^ +//g" |
+        perl -pe "s/[\r\n]/|/" |
+        perl -pe "s/\|\|/\t/g" |
+        perl -pe "s/\|/ /g" |
+        perl -pe "s/.+missal propers: //" |
+        perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
 }
-gcp() {
+
+function gcp() {
     lynx -dump "http://www.episcopalnet.org/1928bcp/psalter/ps${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+^psalms /psalms /" | perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
 }
-geat() {
+
+function geat() {
     for file in */$1; do
         tran=$(echo "$file" | cut -d/ -f1);
         \grep "${tran}" "${ROCKS_HOME}/data/Bibliae/ebible-org_translations.tsv";
-        Get_toml_text.sh -i $file -s $2;
+        Get_toml_text.sh -i "${file}" -s "${2}";
     done;
 }
-gf() {
-    find $1 | xargs \grep -si $2 | \grep -v cache
+
+function gf() {
+    find "${1}" | xargs \grep -si "${2}" | \grep -v cache
 }
-gfl() {
-    find $1 | xargs \grep -sil $2 | \grep -v cache
+
+function gfl() {
+    find "${1}" | xargs \grep -sil "${2}" | \grep -v cache
 }
-gitup()
+
+function gitup()
 {
-    BoldRedFont='\n\n\e[00;31m'
-    NormalFont='\e[00m\n\n'
-    echo -e "${BoldRedFont}Running git add --all${NormalFont}" &&
-    git add --all &&
-    echo -e "${BoldRedFont}Running git commit -a${NormalFont}" &&
-    git commit -a &&
-    echo -e "${BoldRedFont}Running git push origin main${NormalFont}" &&
-    git push origin main
+    RedRunCmd 'git config --global http.postBuffer 524288000' # https://stackoverflow.com/questions/15240815/git-fatal-the-remote-end-hung-up-unexpectedly
+    RedRunCmd 'git add --all'
+    RedRunCmd 'git commit -a'
+    RedRunCmd 'git push origin main'
 }
-glff() {
+
+function glff() {
     fc-list :lang="${1}" | \grep "Free" | perl -lpe "s/^(.+?):.+$/\1/" >| "${1}_FreeFonts.lst"
 }
-gp ()
+
+function gp ()
 {
     ps -efa | \grep -i "$@" | \grep -v grep | perl -pe 's/\s{2,}/ /g' | cut -d ' ' -f 2 | sort | tail -1
 }
-grmp() {
-#   lynx --dump https://www.ewtn.com/catholicism/daily-readings/${1} | sed '0,/First Reading$/d' | sed '/Resources/q' | sed 's/^ \+//' | perl -pe 's/ ([0-9]+)([A-Za-z",;.]+)/\n$1$2/g' | perl -0777 -pe 's/\n(?=[A-Za-z",;.])/ /g' | sed 's/^\s\+//' | sed '/^$/d' | sed '/^[A-Za-z]\+$/d' | perl -pe 's/^([0-9]+)(\S)/$1 $2/'
-#   get_biblegateway_text.pl -u -t RSVCE $(get_universalis_refs.pl -l m -d $1 2> /dev/null)
-    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | \grep "©" | sed -e 's/^ \+//' -e 's/.\+reading //' -e 's/^Gospel //' -e 's/ \[[0-9]\+\]©//' -e '/opyright/d'
-    lynx --dump https://www.universalis.com/Europe.England.Ordinariate/${1}/mass.htm | \grep '^ +Psalm ' | sed -e 's/^ \+//'
-}
-gt() {
+
+function gt() {
     dasel -f $1 -s $2 | perl -lpe 's/^\"//' | perl -lpe 's/\"$//'
 }
-Jpg2Pdf() {
+
+function Jpg2Pdf() {
     # Package imagemagick
     convert $1 $2
 }
-kn() {
+
+function kn() {
     for pid in `np`;
     do
         kill -9 $pid
     done
 }
-ks() {
+
+function ks() {
     kbuildsycoca4 > /dev/null 2>&1
     kquitapp "$@" > /dev/null 2>&1
     kstart "$@" > /dev/null 2>&1
 }
-lu() { sdcv $1 | less ; }
-md() { pandoc -s -f markdown -t man $1 | man -l - ; }
-mkcd() { mkdir $1 && cd $1 ; }
-mp() { mplayer -loop 0 "$@" > /dev/null 2>&1 ; }
-mvi() { find . -inum $1 -exec mv -i {} $2 \; ; }
-npmup() {
+
+function lu() {
+    sdcv $1 | less
+}
+
+function md() {
+    pandoc -s -f markdown -t man $1 | man -l -
+}
+
+function mkcd() {
+    mkdir $1 && cd $1
+}
+
+function mp() {
+    mplayer -loop 0 "$@" > /dev/null 2>&1
+}
+
+function mvi() {
+    find . -inum $1 -exec mv -i {} $2 \;
+}
+
+function npmup() {
     set -e
     set -x
 
@@ -226,7 +267,8 @@ npmup() {
         sudo npm -g install "$package"
     done
 }
-nvmin() {
+
+function nvmin() {
     if [ -z "${NODE_VERSION_DEFAULT}" ]; then
         echo "envar NODE_VERSION_DEFAULT not set"
         return
@@ -237,10 +279,20 @@ nvmin() {
     chmod -R 755 $n/bin/*;
     sudo cp -r $n/{bin,lib,share} /usr/local
 }
-opr() { ${PDF_READER_APP} "${@}"; }
-oss() { ${SPREADSHEET_APP} "${@}"; }
-owp() { ${WORD_PROCESSOR_APP} "${@}"; }
-pwjson() {
+
+function opr() {
+    ${PDF_READER_APP} "${@}"
+}
+
+function oss() {
+    ${SPREADSHEET_APP} "${@}"
+}
+
+function owp() {
+    ${WORD_PROCESSOR_APP} "${@}"
+}
+
+function pwjson() {
     echo "{ \"tld-passwords\": {";
     for tld in `ls -1 ${DROPBOX_HOME}/data/.password-store/*.gpg | perl -pe 's/^.+\/(.+)\.gpg/$1/'`;
     do
@@ -249,18 +301,34 @@ pwjson() {
     echo "    }";
     echo "}";
 }
-rename() {
+
+function rename() {
     for file_name in *;
     do
         new_file_name=$(echo "${file_name}" | sed "s/$1/$2/g");
         [ "${new_file_name}" != "${file_name}" ] && mv -i "${file_name}" "${new_file_name}"
     done
 }
-rmi() { find . -maxdepth 1 -inum $1 -exec rm -i {} \; ; }
-Rst2Pdf() { Create_pdf_from_file $1 $2; } # function in repo ROCKS/bin/Utilities.sh
-sbl() { source ~/.bash_login; }
-sblv() { set -o verbose; source ~/.bash_login; set +o verbose; }
-setPrompt() {
+
+function rmi() {
+    find . -maxdepth 1 -inum $1 -exec rm -i {} \;
+}
+
+function Rst2Pdf() {
+    Create_pdf_from_file $1 $2
+} # function in repo ROCKS/bin/Utilities.sh
+
+function sbl() {
+    source ~/.bash_login
+}
+
+function sblv() {
+    set -o verbose
+    source ~/.bash_login
+    set +o verbose
+}
+
+function setPrompt() {
 	# enable color support of ls and also add handy aliases
 	if [ -x /usr/bin/dircolors ] && [ "${TERM}" != "dumb" ]; then
 
@@ -284,33 +352,41 @@ setPrompt() {
 		fi
 	fi
 }
-setTitle() {
-  if [[ -z "$ORIG" ]]; then
-    ORIG=$PS1
-  fi
-  TITLE="\[\e]2;$*\a\]"
-  PS1=${ORIG}${TITLE}
+
+function setTitle() {
+    if [[ -z "$ORIG" ]]; then
+        ORIG=$PS1
+    fi
+    TITLE="\[\e]2;$*\a\]"
+    PS1=${ORIG}${TITLE}
 }
-sos() { /usr/bin/nm -D $@ | cut -d' ' -f3 ; }
-tsvCols() {
+
+function sos() {
+    /usr/bin/nm -D $@ | cut -d' ' -f3
+}
+
+function tsvCols() {
     let colNum=0;
-    for col in `head -1 ${1}.tsv`;
-    do
+    for col in `head -1 ${1}.tsv`; do
         let colNum++;
         echo $colNum `echo $col | cut -d';' -f 1`;
     done
 }
-vlc() {
+
+function vlc() {
     /usr/bin/vlc $1 --fullscreen --start-time=$2 --stop-time=$3 &> /dev/null
 }
-Vcs2Tsv() { Create_tsv_from_vcs $1 $2; } # function in repo ROCKS/bin/Utilities.sh
-yt ()
+
+function Vcs2Tsv() { Create_tsv_from_vcs $1 $2; } # function in repo ROCKS/bin/Utilities.sh
+
+function yt ()
 {
     echo "${@}" >> ytlog;
    yt-dlp --restrict-filename $@ &> /dev/null
 }
 
 # aliases
+
 alias c="cd;clear"
 alias cg="/usr/bin/google contacts list --fields=name,email,phone" # http://code.google.com/p/googlecl/wiki/ExampleScripts#Contacts
 alias cpanm="sudo cpanm --verbose" # Depends: sudo apt-get install build-essential
