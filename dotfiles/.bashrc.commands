@@ -13,22 +13,19 @@ NormalFont='\e[00m'
 
 # functions
 
-function RedRunCmd()
-{
-    cmd=$(echo "'$*'" | perl -lpe "s/'//g")
-    echo -e "\n\n${BoldRedFont}Running cmd '${cmd}'...${NormalFont}\n\n" &&
-    ${cmd}
+function af() {
+    echo "`date`:${@}" >> ~/GoodFortunes.txt
 }
-
-function af() { echo "`date`:${@}" >> ~/GoodFortunes.txt ; }
 
 function aptcs()
 {
-    RedRunCmd 'apt-cache search'
+    [[ $# -ne 1 ]] && echo "Usage: ${FUNCNAME[0]} regex" && return
+    RedRunCmd "apt-cache search ${1}"
 }
 
 function aptin()
 {
+    [[ $# -lt 1 ]] && echo "Usage: ${FUNCNAME[0]} package1 ... packagen" && return
     RedRunCmd 'sudo apt -f install'
     RedRunCmd 'sudo dpkg --configure -a'
     RedRunCmd 'sudo apt -y update'
@@ -40,22 +37,25 @@ function aptin()
 
 function aptdp()
 {
-    pkgs=$(echo "'$*'" | perl -lpe "s/'//g")
-    RedRunCmd "sudo apt rdepends ${pkgs}"
+    [[ $# -ne 1 ]] && echo "Usage: ${FUNCNAME[0]} package" && return
+    RedRunCmd "sudo apt rdepends ${1}"
 }
 
 function aptls()
 {
+    [[ $# -ne 1 ]] && echo "Usage: ${FUNCNAME[0]} package" && return
     RedRunCmd "sudo dpkg --get-selections ${1}" | grep "${1}.+\sinstall$"
 }
 
 function aptlsall()
 {
+    [[ $# -ne 1 ]] && echo "Usage: ${FUNCNAME[0]} package" && return
     RedRunCmd "apt-cache search ${1}"
 }
 
 function aptrm()
 {
+    [[ $# -lt 1 ]] && echo "Usage: ${FUNCNAME[0]} package1 ... packagen" && return
     pkgs=$(echo "'$*'" | perl -lpe "s/'//g")
     RedRunCmd "sudo apt remove ${pkgs}"
     RedRunCmd 'sudo apt -y autoremove'
@@ -77,12 +77,8 @@ function au() { echo "`date`:${@}" >> urls ; }
 
 function cdi()
 {
-    if [ $# -ne 1 ];
-    then
-        echo "Usage: ${FUNCNAME[0]} inode";
-    else
-        cd $(find -inum ${@:1}) ;
-    fi
+    [[ $# -ne 1 ]] && echo "Usage: ${FUNCNAME[0]} inode" && return
+    cd $(find -inum ${@:1}) ;
 }
 
 function cud ()
@@ -93,6 +89,7 @@ function cud ()
 
 function debin()
 {
+    [[ $# -lt 1 ]] && echo "Usage: ${FUNCNAME[0]} package1 ... packagen" && return
     RedRunCmd 'sudo apt-get -f install'
     RedRunCmd 'sudo dpkg --configure -a'
     pkgs=$(echo "'$*'" | perl -lpe "s/'//g")
@@ -101,6 +98,7 @@ function debin()
 
 function debls()
 {
+    [[ $# -ne 1 ]] && echo "Usage: ${FUNCNAME[0]} package" && return
     for file in /var/lib/apt/lists/*Packages; do
         echo "${file}" && grep -H ^Package "${file}"
     done | grep "${1}"
@@ -138,15 +136,11 @@ function ffmpeg-extract () {
 }
 
 function ffmpeg-merge () {
-    if [ $# -lt 3 ];
-    then
-        echo "Usage: $0 OutputPath file1 ... filen"
-    else
-        of="${1}"
-        echo "Output: $of"
-        shift
-        ffmpeg -f concat -safe 0 -i <(for f in "${@}"; do echo "file '$PWD/$f'"; done) -c copy "$of" &> /dev/null
-    fi
+    [[ $# -lt 3 ]] && echo "Usage: $0 outfile infile1 infile2 [... infilen]" && return
+    of="${1}"
+    echo "Output: $of"
+    shift
+    ffmpeg -f concat -safe 0 -i <(for f in "${@}"; do echo "file '$PWD/$f'"; done) -c copy "$of" &> /dev/null
 }
 
 function ffmpeg-rotate () {
@@ -165,6 +159,7 @@ function finddup() {
 }
 
 function gaf() {
+    [[ $# -ne 1 ]] && echo "Usage: ${FUNCNAME[0]} url" && return
     Get_url_data_files.sh -d "Articuli" -u "${1}" # repo dir ROCKS/bin/
 }
 
@@ -180,16 +175,22 @@ function gamp() {
 }
 
 function gcp() {
-    lynx -dump "http://www.episcopalnet.org/1928bcp/psalter/ps${1}.html" | perl -pe "s/^ +//g" | perl -pe "s/[\r\n]/|/" | perl -pe "s/\|\|/\t/g" | perl -pe "s/\|/ /g" | perl -pe "s/.+^psalms /psalms /" | perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
+    lynx -dump "http://www.episcopalnet.org/1928bcp/psalter/ps${1}.html" |
+        perl -pe "s/^ +//g" |
+        perl -pe "s/[\r\n]/|/" |
+        perl -pe "s/\|\|/\t/g" |
+        perl -pe "s/\|/ /g" |
+        perl -pe "s/.+^psalms /psalms /" |
+        perl -pe "s/\wepiscopalnet.*//" > ${1}.txt
 }
 
-function geat() {
-    for file in */$1; do
-        tran=$(echo "$file" | cut -d/ -f1);
-        \grep "${tran}" "${ROCKS_HOME}/data/Bibliae/ebible-org_translations.tsv";
-        Get_toml_text.sh -i "${file}" -s "${2}";
-    done;
-}
+#function geat() {
+#    for file in */$1; do
+#        tran=$(echo "$file" | cut -d/ -f1);
+#        \grep "${tran}" "${ROCKS_LOOKUP}/Lookup_Translations_ebible-org.tsv";
+#        Get_toml_text.sh -i "${file}" -s "${2}";
+#    done;
+#}
 
 function gf() {
     find "${1}" | xargs \grep -si "${2}" | \grep -v cache
@@ -300,6 +301,13 @@ function pwjson() {
     done;
     echo "    }";
     echo "}";
+}
+
+function RedRunCmd()
+{
+    cmd=$(echo "'$*'" | perl -lpe "s/'//g")
+    echo -e "\n\n${BoldRedFont}Running command '${cmd}'...${NormalFont}\n\n" &&
+    ${cmd}
 }
 
 function rename() {
