@@ -73,7 +73,9 @@ function aptup()
     RedRunCmd 'sudo apt clean'
 }
 
-function au() { echo "`date`:${@}" >> urls ; }
+function au() {
+    echo "`date`:${@}" >> urls
+}
 
 function cdi()
 {
@@ -112,31 +114,19 @@ function fd () {
     find . -type d -exec ls -d {} \;|sort -f
 }
 
-function fll() {
-    find "${0}" -type f -print0 | xargs -0 ls -l;
-}
-
-function fr90 ()
-{
-    ffmpeg -i $1 -vf "transpose=0" "r90.${1}"
-}
-
 function ffmpeg-convert-webm-to-mp4 () {
-    ffmpeg -fflags +genpts -i ${1} -r 24 ${2}
+    [[ $# -ne 2 ]] && echo "Usage: ${FUNCNAME[0]} infile outfile" && return
+    ffmpeg -fflags +genpts -i "${1}" -r 24 "${2}"
 }
 
 function ffmpeg-extract () {
-    if [ $# -ne 4 ];
-    then
-        echo "Usage: $0 InputPath StartPosition Duration OutputPath"
-    else
-#       ffmpeg -ss "${2}" -i $1 -t $3 -vcodec copy -acodec copy "${4}"
-        ffmpeg -ss "${2}" -i $1 -t $3 "${4}" &> /dev/null
-    fi
+    [[ $# -ne 4 ]] && echo "Usage: ${FUNCNAME[0]} InputPath StartPosition Duration OutputPath" && return
+#   ffmpeg -ss "${2}" -i $1 -t $3 -vcodec copy -acodec copy "${4}"
+    ffmpeg -ss "${2}" -i $1 -t $3 "${4}" &> /dev/null
 }
 
 function ffmpeg-merge () {
-    [[ $# -lt 3 ]] && echo "Usage: $0 outfile infile1 infile2 [... infilen]" && return
+    [[ $# -lt 3 ]] && echo "Usage: ${FUNCNAME[0]} outfile infile1 infile2 [... infilen]" && return
     of="${1}"
     echo "Output: $of"
     shift
@@ -144,6 +134,7 @@ function ffmpeg-merge () {
 }
 
 function ffmpeg-rotate () {
+    [[ $# -ne 3 ]] && echo "Usage: ${FUNCNAME[0]} degrees infile outfile" && return
     #https://superuser.com/questions/578321/how-to-rotate-a-video-180-with-ffmpeg
     ffmpeg -i ${2} -vf "rotate=${1}*(pi/180),format=yuv420p" -metadata:s:v rotate=0 -codec:v libx264 -codec:a copy ${3} &> /dev/null
 }
@@ -256,7 +247,8 @@ function mp() {
 }
 
 function mvi() {
-    find . -inum $1 -exec mv -i {} $2 \;
+    [[ $# -ne 2 ]] && echo "Usage: ${FUNCNAME[0]} inode outfile" && return
+    find . -inum "${1}" -exec mv -i {} "${2}" \;
 }
 
 function npmup() {
@@ -306,11 +298,12 @@ function pwjson() {
 function RedRunCmd()
 {
     cmd=$(echo "'$*'" | perl -lpe "s/'//g")
-    echo -e "\n\n${BoldRedFont}Running command '${cmd}'...${NormalFont}\n\n" &&
+    echo -e "\n\n${BoldRedFont}Running command '${cmd}'...${NormalFont}\n\n"
     ${cmd}
 }
 
 function rename() {
+    [[ $# -ne 2 ]] && echo "Usage: ${FUNCNAME[0]} regexFrom regexTo" && return
     for file_name in *;
     do
         new_file_name=$(echo "${file_name}" | sed "s/$1/$2/g");
